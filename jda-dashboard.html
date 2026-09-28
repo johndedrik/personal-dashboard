@@ -237,7 +237,8 @@
   }
 
   @media (max-width: 768px) {
-    .container > div[style*="display: flex"] {
+    /* Stock boxes stack vertically */
+    .container > div[style*="display: flex"]:has(.stock-box) {
       flex-direction: column;
     }
 
@@ -259,11 +260,11 @@
     }
 
     /* Score cards: 2 per row on mobile */
-    .container > div[style*="display: flex"] {
+    .container > div[style*="display: flex"]:not(:has(.stock-box)) {
       flex-wrap: wrap;
     }
 
-    .container > div[style*="display: flex"] > div[style*="flex: 1"] {
+    .container > div[style*="display: flex"]:not(:has(.stock-box)) > div[style*="flex: 1"] {
       min-width: calc(50% - 8px);
       flex: none;
     }
@@ -302,7 +303,7 @@
     }
 
     .forecast-day {
-      font-size: 0.75em;
+      font-size: 0.85em;
       padding: 10px;
     }
   }
@@ -337,6 +338,20 @@ function collapseAll() {
   ["chevronWorld", "chevron", "chevronTech", "chevronUS", "chevronLocal", "chevronSports", "chevronMarist", "chevronRowing"].forEach(id => {
     document.getElementById(id).classList.remove("rotate");
   });
+}
+
+// Collapsible Weather section
+function toggleWeather() {
+  const content = document.getElementById("weatherContent");
+  const chevron = document.getElementById("chevronWeather");
+
+  if (content.style.maxHeight && content.style.maxHeight !== "none") {
+    content.style.maxHeight = null;
+    chevron.classList.remove("rotate");
+  } else {
+    content.style.maxHeight = content.scrollHeight + "px";
+    chevron.classList.add("rotate");
+  }
 }
 
 // Collapsible World News section
@@ -1002,6 +1017,10 @@ window.onload = function() {
 
 <body>
 
+<button onclick="location.reload()" title="Refresh page" style="position: fixed; top: 16px; right: 16px; z-index: 1000; background: var(--card-bg-raised); border: 1px solid var(--border); color: var(--text); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2em; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); transition: all var(--transition);">
+  ↻
+</button>
+
 <header>
   <div style="display: flex; align-items: center; gap: 16px;">
     <img src="profile pic.png" alt="Profile" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid #4a4f57;">
@@ -1064,12 +1083,16 @@ window.onload = function() {
     </div>
   </div>
 
-  <div class="weather-box">
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-      <h2>Wayne, NJ Weather</h2>
+  <div class="collapsible-header" onclick="toggleWeather()" style="margin-top: 36px;">
+    <span id="chevronWeather" class="chevron">▼</span>
+    <span style="display: flex; align-items: center; gap: 12px;">
+      <h2 style="margin: 0; font-size: 1.15em; font-weight: 500;">Wayne, NJ Weather</h2>
       <img id="currentWeatherIcon" src="" alt="Weather icon" style="width: 36px; height: 36px;">
-    </div>
-    <div id="weatherData">Loading weather...</div>
+    </span>
+  </div>
+
+  <div id="weatherContent" class="collapsible-content" style="max-height: none; padding-bottom: 24px;">
+    <div id="weatherData" style="margin-top: 16px;">Loading weather...</div>
     <h3 style="margin-top:24px;">7-Day Forecast</h3>
     <div id="forecast"></div>
   </div>
