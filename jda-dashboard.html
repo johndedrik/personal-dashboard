@@ -306,6 +306,11 @@
       font-size: 0.85em;
       padding: 10px;
     }
+
+    /* Smaller score text on mobile */
+    .container > div[style*="display: flex"]:not(:has(.stock-box)) > div[style*="flex: 1"] > div[style*="font-size: 1.5em"] {
+      font-size: 1.1em !important;
+    }
   }
 
   @media (max-width: 480px) {
@@ -345,7 +350,7 @@ function toggleWeather() {
   const content = document.getElementById("weatherContent");
   const chevron = document.getElementById("chevronWeather");
 
-  if (content.style.maxHeight && content.style.maxHeight !== "none") {
+  if (chevron.classList.contains("rotate")) {
     content.style.maxHeight = null;
     chevron.classList.remove("rotate");
   } else {
@@ -1084,7 +1089,7 @@ window.onload = function() {
   </div>
 
   <div class="collapsible-header" onclick="toggleWeather()" style="margin-top: 36px;">
-    <span id="chevronWeather" class="chevron">▼</span>
+    <span id="chevronWeather" class="chevron rotate">▼</span>
     <span style="display: flex; align-items: center; gap: 12px;">
       <h2 style="margin: 0; font-size: 1.15em; font-weight: 500;">Wayne, NJ Weather</h2>
       <img id="currentWeatherIcon" src="" alt="Weather icon" style="width: 36px; height: 36px;">
