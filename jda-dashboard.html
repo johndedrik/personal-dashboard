@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JDA - Personal Daily Dashboard</title>
+
+<style>
+  :root {
+    --bg: #16181d;
+    --text: #e8e9eb;
+    --card-bg: #1f2229;
+    --card-bg-raised: #262a32;
+    --accent: #2563eb;
+    --accent-light: #60a5fa;
+    --border: #2e323b;
+    --muted: #8b8f98;
+    --radius: 12px;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.35);
+    --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  header {
+    padding: 28px 32px;
+    background: linear-gradient(
+      135deg,
+      var(--card-bg-raised) 0%,
+      rgba(31, 34, 41, 0.0) 100%
+    );
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.75em;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--accent-light);
+  }
+
+  #lastUpdated {
+    font-size: 0.85em;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 36px auto;
+    padding: 0 24px;
+  }
+
+  .stock-box, .weather-box {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 36px;
+    transition: box-shadow var(--transition), transform var(--transition);
+  }
+
+  .stock-box:hover, .weather-box:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+  }
+
+  .stock-box h2, .weather-box h2 {
+    color: var(--accent-light);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+
+  .stock-box h2, .weather-box h2 {
+    color: var(--accent-light);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+
+  .collapsible-header {
+    background: var(--card-bg);
+    padding: 18px 20px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    font-size: 1.15em;
+    font-weight: 500;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    color: var(--accent-light);
+    transition: box-shadow var(--transition), transform var(--transition), background var(--transition);
+  }
+
+  .collapsible-header:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+    background: var(--card-bg-raised);
+  }
+
+  .chevron {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1.1em;
+    color: var(--accent-light);
+  }
+
+  .chevron.rotate {
+    transform: rotate(180deg);
+  }
+
+  .collapsible-content {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .story {
+    background: var(--card-bg);
+    padding: 20px 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+
+  .story:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .headline {
+    font-size: 1.15em;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #a3a8b0;
+    letter-spacing: -0.01em;
+  }
+
+  .story p {
+    color: var(--muted);
+    margin: 0 0 12px;
+    font-size: 0.95em;
+    line-height: 1.5;
+  }
+
+  a {
+    color: var(--accent-light);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--transition);
+  }
+
+  a:hover {
+    border-bottom-color: var(--accent-light);
+  }
+
+  #forecast {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .forecast-day {
+    flex: 1;
+    background: var(--card-bg-raised);
+    padding: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.85em;
+    box-shadow: var(--shadow);
+    transition: box-shadow var(--transition), transform var(--transition);
+  }
+
+  .forecast-day:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+  }
+
+  .forecast-day img {
+    display: block;
+    margin: 0 auto 6px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .forecast-day strong {
+    font-size: 0.9em;
+    white-space: nowrap;
+  }
+
+  #weatherData {
+    font-size: 1.1em;
+    line-height: 1.8;
+    font-weight: 500;
+  }
+
+  h3 {
+    color: var(--accent-light);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  @media (max-width: 768px) {
+    .container > div[style*="display: flex"] {
+      flex-direction: column;
+    }
+
+    header {
+      flex-direction: column;
+      gap: 8px;
+      text-align: center;
+      padding: 20px 16px;
+    }
+
+    header > div:first-child {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .container {
+      padding: 0 16px;
+      margin: 20px auto;
+    }
+
+    /* Stack score cards vertically */
+    .stock-box:first-of-type > div:first-child {
+      flex-direction: column;
+    }
+
+    /* Make forecast wrap on mobile */
+    #forecast {
+      flex-wrap: wrap;
+    }
+
+    .forecast-day {
+      min-width: 45%;
+      flex: none;
+    }
+
+    /* Reduce card padding on mobile */
+    .stock-box, .weather-box {
+      padding: 16px;
+    }
+
+    .story {
+      padding: 16px 20px;
+    }
+
+    /* Smaller fonts on mobile */
+    h1 {
+      font-size: 1.4em;
+    }
+
+    .collapsible-header {
+      font-size: 1em;
+      padding: 14px 16px;
+    }
+
+    .headline {
+      font-size: 1.05em;
+    }
+
+    .forecast-day {
+      font-size: 0.75em;
+      padding: 10px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .forecast-day {
+      min-width: 100%;
+    }
+
+    #forecast {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script>
+function collapseAll() {
+  ["worldContent", "aiContent", "techContent", "usContent", "localNewsContent", "sportsContent", "maristContent", "rowingContent"].forEach(id => {
+    document.getElementById(id).style.maxHeight = null;
+  });
+  ["chevronWorld", "chevron", "chevronTech", "chevronUS", "chevronLocal", "chevronSports", "chevronMarist", "chevronRowing"].forEach(id => {
+    document.getElementById(id).classList.remove("rotate");
+  });
+}
+
+// Collapsible World News section
+function toggleWorldNews() {
+  const content = document.getElementById("worldContent");
+  const chevron = document.getElementById("chevronWorld");
+
+  if (content.style.maxHeight) {
+    content.style.maxHeight = null;
+    chevron.classList.remove("rotate");
+  } else {
+    collapseAll();
+    content.style.maxHeight = content.scrollHeight + "px";
+    chevron.classList.add("rotate");
+  }
+}
+
+// Collapsible Tech News section
+function toggleTechNews() {
+  const content = document.getElementById("techContent");
+  const chevron = document.getElementById("chevronTech");
+
+  if (content.style.maxHeight) {
+    content.style.maxHeight = null;
+    chevron.classList.remove("rotate");
+  } else {
+    collapseAll();
+    content.style.maxHeight = content.scrollHeight + "px";
+    chevron.classList.add("rotate");
+  }
+}
+
+// Collapsible US News section
+function toggleUSNews() {
+  const content = document.getElementById("usContent");
+  const chevron = document.getElementById("chevronUS");
+
+  if (content.style.maxHeight) {
+    content.style.maxHeight = null;
+    chevron.classList.remove("rotate");
+  } else {
+    collapseAll();
+    content.style.maxHeight = content.scrollHeight + "px";
+    chevron.classList.add("rotate");
+  }
+}
+
+// Collapsible AI section
+function toggleAISection() {
+  const content = document.getElementById("aiContent");
+  const chevron = document.getElementById("chevron");
+
+  if (content.style.maxHeight) {
+    content.style.maxHeight = null;
+    chevron.classList.remove("rotate");
+  } else {
+    collapseAll();
+    content.style.maxHeight = content.scrollHeight + "px";
+    chevron.classList.add("rotate");
+  }
+}
+
+// Collapsible Local News section
+function toggleLocalNews() {
+  const content = document.getElementById("localNewsContent");
+  const chevron = document.getElementById("chevronLocal");
+
+  if (content.style.maxHeight) {
+    content.style.maxHeight = null;
+    chevron.classList.remove("rotate");
+  } else {
+    collapseAll();
+    content.style.maxHeight = content.scrollHeight + "px";
+    chevron.classList.add("rotate");
+  }
+}
+
+// Collapsible Marist News section
+function toggleMaristNews() {
+  const content = document.getElementById("maristContent");
+  const chevron = document.getElementById("chevronMarist");
+
+  if (content.style.maxHeight) {
+    content.style.maxHeight = null;
+    chevron.classList.remove("rotate");
+  } else {
+    collapseAll();
+    content.style.maxHeight = content.scrollHeight + "px";
+    chevron.classList.add("rotate");
+  }
+}
+
+// Collapsible Rowing section
+function toggleRowing() {
+  const content = document.getElementById("rowingContent");
+  const chevron = document.getElementById("chevronRowing");
+
+  if (content.style.maxHeight) {
+    content.style.maxHeight = null;
+    chevron.classList.remove("rotate");
+  } else {
+    collapseAll();
+    content.style.maxHeight = content.scrollHeight + "px";
+    chevron.classList.add("rotate");
+  }
+}
+
+// Collapsible Sports News section
+function toggleSportsNews() {
+  const content = document.getElementById("sportsContent");
+  const chevron = document.getElementById("chevronSports");
+
+  if (content.style.maxHeight) {
+    content.style.maxHeight = null;
+    chevron.classList.remove("rotate");
+  } else {
+    collapseAll();
+    content.style.maxHeight = content.scrollHeight + "px";
+    chevron.classList.add("rotate");
+  }
+}
+
+/* WEATHER ICON MAP — Using external SVG URLs */
+const weatherIcons = {
+  0: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/day.svg",
+  1: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/cloudy-day-1.svg",
+  2: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/cloudy-day-2.svg",
+  3: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/cloudy.svg",
+  45: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/cloudy.svg",
+  48: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/cloudy.svg",
+  51: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/rainy-1.svg",
+  53: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/rainy-1.svg",
+  55: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/rainy-1.svg",
+  61: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/rainy-1.svg",
+  63: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/rainy-1.svg",
+  65: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/rainy-1.svg",
+  71: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/snowy-1.svg",
+  73: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/snowy-1.svg",
+  75: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/snowy-1.svg",
+  80: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/rainy-1.svg",
+  95: "https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/thunder.svg"
+};
+
+/* FORMAT DATE WITH WEEKDAY */
+function formatDateWithWeekday(dateStr) {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const [year, month, day] = dateStr.split("-");
+  const dateObj = new Date(year, month - 1, day);
+  const weekday = weekdays[dateObj.getDay()];
+  const monthName = months[month - 1];
+  return `${weekday}, ${monthName} ${parseInt(day)}, ${year}`;
+}
+
+// Weather fetch
+async function loadWeather() {
+  try {
+    const response = await fetch(
+      "https://api.open-meteo.com/v1/forecast?latitude=40.95&longitude=-74.24&current=temperature_2m,weathercode,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=America/New_York"
+    );
+    const data = await response.json();
+    const tempF = (data.current.temperature_2m * 9/5) + 32;
+    const wind = data.current.windspeed_10m;
+    const code = data.current.weathercode;
+
+    const conditions = {
+      0: "Clear", 1: "Mainly Clear", 2: "Partly Cloudy", 3: "Overcast", 45: "Fog", 48: "Rime Fog", 
+      51: "Light Drizzle", 53: "Moderate Drizzle", 55: "Dense Drizzle", 61: "Light Rain", 
+      63: "Moderate Rain", 65: "Heavy Rain", 71: "Light Snow", 73: "Moderate Snow", 
+      75: "Heavy Snow", 80: "Rain Showers", 95: "Thunderstorm"
+    };
+
+    const desc = conditions[code] || "Weather";
+    document.getElementById("weatherData").innerHTML = `${desc}<br>Temperature: ${tempF.toFixed(0)}°F<br>Wind: ${Math.round(wind)} mph`;
+    document.getElementById("currentWeatherIcon").src = weatherIcons[code] || weatherIcons[0];
+
+    let forecastHTML = "";
+    for (let i = 0; i < 7; i++) {
+      const maxF = (data.daily.temperature_2m_max[i] * 9/5) + 32;
+      const minF = (data.daily.temperature_2m_min[i] * 9/5) + 32;
+      const wcode = data.daily.weathercode[i];
+      const wdesc = conditions[wcode] || "Weather";
+      const icon = weatherIcons[wcode] || weatherIcons[0];
+      const date = data.daily.time[i];
+
+      forecastHTML += `
+        <div class="forecast-day">
+          <strong>${formatDateWithWeekday(date)}</strong><br>
+          <img src="${icon}" alt="${wdesc}">
+          ${wdesc}<br>
+          High: ${maxF.toFixed(0)}°F<br>
+          Low: ${minF.toFixed(0)}°F
+        </div>`;
+    }
+    document.getElementById("forecast").innerHTML = forecastHTML;
+    document.getElementById("lastUpdated").innerText = "Last updated: " + new Date().toLocaleString();
+  } catch (e) {
+    document.getElementById("weatherData").innerText = "Weather unavailable";
+  }
+}
+
+async function loadAINews() {
+  const container = document.getElementById("aiNewsContainer");
+  try {
+    const response = await fetch(
+      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ftechcrunch.com%2Fcategory%2Fartificial-intelligence%2Ffeed%2F"
+    );
+    const data = await response.json();
+    if (data.items && data.items.length > 0) {
+      let html = "";
+      data.items.slice(0, 5).forEach(item => {
+        const title = item.title || "Untitled";
+        const link = item.link || "#";
+        const desc = (item.description || "").replace(/<[^>]*>/g, "").substring(0, 150);
+        const pubDate = item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+        html += `
+          <div class="story">
+            <div class="headline">${title}</div>
+            <p>${desc}...</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <a href="${link}" target="_blank">Read full story</a>
+              <span style="color: var(--muted); font-size: 0.8em;">${pubDate}</span>
+            </div>
+          </div>`;
+      });
+      container.innerHTML = html;
+    } else {
+      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">No news available.</p>';
+    }
+  } catch (e) {
+    container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">Unable to load AI news.</p>';
+  }
+}
+
+async function loadLocalNews() {
+  const container = document.getElementById("localNewsContainer");
+  try {
+    const response = await fetch(
+      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnews.google.com%2Frss%2Fsearch%3Fq%3DWayne%2BNJ%2Bnews%26hl%3Den-US%26gl%3DUS%26ceid%3DUS%3Aen"
+    );
+    const data = await response.json();
+    if (data.items && data.items.length > 0) {
+      let html = "";
+      data.items.slice(0, 5).forEach(item => {
+        const title = item.title || "Untitled";
+        const link = item.link || "#";
+        const desc = (item.description || "").replace(/<[^>]*>/g, "").substring(0, 150);
+        const pubDate = item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+        html += `
+          <div class="story">
+            <div class="headline">${title}</div>
+            <p>${desc}...</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <a href="${link}" target="_blank">Read full story</a>
+              <span style="color: var(--muted); font-size: 0.8em;">${pubDate}</span>
+            </div>
+          </div>`;
+      });
+      container.innerHTML = html;
+    } else {
+      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">No local news available.</p>';
+    }
+  } catch (e) {
+    container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">Unable to load local news.</p>';
+  }
+}
+
+async function loadSportsNews() {
+  const container = document.getElementById("sportsContainer");
+  try {
+    const response = await fetch(
+      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnews.google.com%2Frss%2Fsearch%3Fq%3Dsports%26hl%3Den-US%26gl%3DUS%26ceid%3DUS%3Aen"
+    );
+    const data = await response.json();
+    if (data.items && data.items.length > 0) {
+      let html = "";
+      data.items.slice(0, 5).forEach(item => {
+        const title = item.title || "Untitled";
+        const link = item.link || "#";
+        const desc = (item.description || "").replace(/<[^>]*>/g, "").substring(0, 150);
+        const pubDate = item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+        html += `
+          <div class="story">
+            <div class="headline">${title}</div>
+            <p>${desc}...</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <a href="${link}" target="_blank">Read full story</a>
+              <span style="color: var(--muted); font-size: 0.8em;">${pubDate}</span>
+            </div>
+          </div>`;
+      });
+      container.innerHTML = html;
+    } else {
+      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">No sports news available.</p>';
+    }
+  } catch (e) {
+    container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">Unable to load sports news.</p>';
+  }
+}
+
+async function loadGiantsScore() {
+  const el = document.getElementById("giantsScore");
+  try {
+    const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard");
+    const data = await res.json();
+    const games = data.events || [];
+    let giantsGame = games.find(g => {
+      const comp = g.competitions && g.competitions[0];
+      if (!comp) return false;
+      return comp.competitors.some(c => c.team.abbreviation === "NYG");
+    });
+    if (!giantsGame) {
+      const today = new Date();
+      const endDate = new Date(today);
+      endDate.setDate(endDate.getDate() + 30);
+      const fmt = d => d.toISOString().split("T")[0].replace(/-/g, "");
+      const dateRange = `${fmt(today)}-${fmt(endDate)}`;
+      const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${dateRange}`);
+      const data2 = await res2.json();
+      const games2 = data2.events || [];
+      giantsGame = games2.find(g => {
+        const comp = g.competitions && g.competitions[0];
+        if (!comp) return false;
+        return comp.competitors.some(c => c.team.abbreviation === "NYG");
+      });
+    }
+    if (giantsGame) {
+      const comp = giantsGame.competitions[0];
+      const home = comp.competitors[0];
+      const away = comp.competitors[1];
+      const status = giantsGame.status && giantsGame.status.type && giantsGame.status.type.detail || "Unknown";
+      const date = giantsGame.date ? new Date(giantsGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+      el.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
+          <img src="https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" alt="NY Giants" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
+          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">NEW YORK GIANTS</span>
+        </div>
+        <div style="font-size: 1.5em; font-weight: 600; color: var(--text);">
+          ${away.team.abbreviation} ${away.score} — ${home.team.abbreviation} ${home.score}
+        </div>
+        <div style="font-size: 0.9em; color: var(--muted); margin-top: 6px;">${status} · ${date}</div>
+      `;
+    } else {
+      el.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
+          <img src="https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" alt="NY Giants" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
+          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">NEW YORK GIANTS</span>
+        </div>
+        <p style="color: var(--muted); margin: 0;">No games scheduled within the next 30 days.</p>
+      `;
+    }
+  } catch (e) {
+    el.innerHTML = '<p style="color: var(--muted); margin: 0;">Unable to load Giants score.</p>';
+  }
+}
+
+async function loadOriolesScore() {
+  const el = document.getElementById("oriolesScore");
+  try {
+    const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard");
+    const data = await res.json();
+    const games = data.events || [];
+    let oriolesGame = games.find(g => {
+      const comp = g.competitions && g.competitions[0];
+      if (!comp) return false;
+      return comp.competitors.some(c => c.team.abbreviation === "BAL");
+    });
+    if (!oriolesGame) {
+      const today = new Date();
+      const endDate = new Date(today);
+      endDate.setDate(endDate.getDate() + 30);
+      const fmt = d => d.toISOString().split("T")[0].replace(/-/g, "");
+      const dateRange = `${fmt(today)}-${fmt(endDate)}`;
+      const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${dateRange}`);
+      const data2 = await res2.json();
+      const games2 = data2.events || [];
+      oriolesGame = games2.find(g => {
+        const comp = g.competitions && g.competitions[0];
+        if (!comp) return false;
+        return comp.competitors.some(c => c.team.abbreviation === "BAL");
+      });
+    }
+    if (oriolesGame) {
+      const comp = oriolesGame.competitions[0];
+      const home = comp.competitors[0];
+      const away = comp.competitors[1];
+      const status = oriolesGame.status && oriolesGame.status.type && oriolesGame.status.type.detail || "Unknown";
+      const date = oriolesGame.date ? new Date(oriolesGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+      el.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
+          <img src="https://a.espncdn.com/i/teamlogos/mlb/500/bal.png" alt="Baltimore Orioles" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
+          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">BALTIMORE ORIOLES</span>
+        </div>
+        <div style="font-size: 1.5em; font-weight: 600; color: var(--text);">
+          ${away.team.abbreviation} ${away.score} — ${home.team.abbreviation} ${home.score}
+        </div>
+        <div style="font-size: 0.9em; color: var(--muted); margin-top: 6px;">${status} · ${date}</div>
+      `;
+    } else {
+      el.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
+          <img src="https://a.espncdn.com/i/teamlogos/mlb/500/bal.png" alt="Baltimore Orioles" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
+          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">BALTIMORE ORIOLES</span>
+        </div>
+        <p style="color: var(--muted); margin: 0;">No games scheduled within the next 30 days.</p>
+      `;
+    }
+  } catch (e) {
+    el.innerHTML = '<p style="color: var(--muted); margin: 0;">Unable to load Orioles score.</p>';
+  }
+}
+
+async function loadYankeesScore() {
+  const el = document.getElementById("yankeesScore");
+  try {
+    const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard");
+    const data = await res.json();
+    const games = data.events || [];
+    let yankeesGame = games.find(g => {
+      const comp = g.competitions && g.competitions[0];
+      if (!comp) return false;
+      return comp.competitors.some(c => c.team.abbreviation === "NYY");
+    });
+    if (!yankeesGame) {
+      const today = new Date();
+      const endDate = new Date(today);
+      endDate.setDate(endDate.getDate() + 30);
+      const fmt = d => d.toISOString().split("T")[0].replace(/-/g, "");
+      const dateRange = `${fmt(today)}-${fmt(endDate)}`;
+      const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${dateRange}`);
+      const data2 = await res2.json();
+      const games2 = data2.events || [];
+      yankeesGame = games2.find(g => {
+        const comp = g.competitions && g.competitions[0];
+        if (!comp) return false;
+        return comp.competitors.some(c => c.team.abbreviation === "NYY");
+      });
+    }
+    if (yankeesGame) {
+      const comp = yankeesGame.competitions[0];
+      const home = comp.competitors[0];
+      const away = comp.competitors[1];
+      const status = yankeesGame.status && yankeesGame.status.type && yankeesGame.status.type.detail || "Unknown";
+      const date = yankeesGame.date ? new Date(yankeesGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+      el.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
+          <img src="https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" alt="New York Yankees" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
+          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">NEW YORK YANKEES</span>
+        </div>
+        <div style="font-size: 1.5em; font-weight: 600; color: var(--text);">
+          ${away.team.abbreviation} ${away.score} — ${home.team.abbreviation} ${home.score}
+        </div>
+        <div style="font-size: 0.9em; color: var(--muted); margin-top: 6px;">${status} · ${date}</div>
+      `;
+    } else {
+      el.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
+          <img src="https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" alt="New York Yankees" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
+          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">NEW YORK YANKEES</span>
+        </div>
+        <p style="color: var(--muted); margin: 0;">No games scheduled within the next 30 days.</p>
+      `;
+    }
+  } catch (e) {
+    el.innerHTML = '<p style="color: var(--muted); margin: 0;">Unable to load Yankees score.</p>';
+  }
+}
+
+async function loadKnicksScore() {
+  const el = document.getElementById("knicksScore");
+  try {
+    const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard");
+    const data = await res.json();
+    const games = data.events || [];
+    let knicksGame = games.find(g => {
+      const comp = g.competitions && g.competitions[0];
+      if (!comp) return false;
+      return comp.competitors.some(c => c.team.abbreviation === "NYK");
+    });
+    if (!knicksGame) {
+      el.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
+          <img src="https://a.espncdn.com/i/teamlogos/nba/500/nyk.png" alt="New York Knicks" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
+          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">NEW YORK KNICKS</span>
+        </div>
+        <p style="color: var(--muted); margin: 0;">No games scheduled within the next 30 days.</p>
+      `;
+    }
+    if (knicksGame) {
+      const comp = knicksGame.competitions[0];
+      const home = comp.competitors[0];
+      const away = comp.competitors[1];
+      const status = knicksGame.status && knicksGame.status.type && knicksGame.status.type.detail || "Unknown";
+      const date = knicksGame.date ? new Date(knicksGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+      el.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
+          <img src="https://a.espncdn.com/i/teamlogos/nba/500/nyk.png" alt="New York Knicks" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
+          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">NEW YORK KNICKS</span>
+        </div>
+        <div style="font-size: 1.5em; font-weight: 600; color: var(--text);">
+          ${away.team.abbreviation} ${away.score} — ${home.team.abbreviation} ${home.score}
+        </div>
+        <div style="font-size: 0.9em; color: var(--muted); margin-top: 6px;">${status} · ${date}</div>
+      `;
+    }
+  } catch (e) {
+    el.innerHTML = '<p style="color: var(--muted); margin: 0;">Unable to load Knicks score.</p>';
+  }
+}
+
+async function loadWorldNews() {
+  const container = document.getElementById("worldContainer");
+  try {
+    const response = await fetch(
+      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ffeeds.bbci.co.uk%2Fnews%2Fworld%2Frss.xml"
+    );
+    const data = await response.json();
+    if (data.items && data.items.length > 0) {
+      let html = "";
+      data.items.slice(0, 5).forEach(item => {
+        const title = item.title || "Untitled";
+        const link = item.link || "#";
+        const desc = (item.description || "").replace(/<[^>]*>/g, "").substring(0, 150);
+        const pubDate = item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+        html += `
+          <div class="story">
+            <div class="headline">${title}</div>
+            <p>${desc}...</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <a href="${link}" target="_blank">Read full story</a>
+              <span style="color: var(--muted); font-size: 0.8em;">${pubDate}</span>
+            </div>
+          </div>`;
+      });
+      container.innerHTML = html;
+    } else {
+      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">No world news available.</p>';
+    }
+  } catch (e) {
+    container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">Unable to load world news.</p>';
+  }
+}
+
+async function loadUSNews() {
+  const container = document.getElementById("usContainer");
+  try {
+    const response = await fetch(
+      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ffeeds.npr.org%2F1001%2Frss.xml"
+    );
+    const data = await response.json();
+    if (data.items && data.items.length > 0) {
+      let html = "";
+      data.items.slice(0, 5).forEach(item => {
+        const title = item.title || "Untitled";
+        const link = item.link || "#";
+        const desc = (item.description || "").replace(/<[^>]*>/g, "").substring(0, 150);
+        const pubDate = item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+        html += `
+          <div class="story">
+            <div class="headline">${title}</div>
+            <p>${desc}...</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <a href="${link}" target="_blank">Read full story</a>
+              <span style="color: var(--muted); font-size: 0.8em;">${pubDate}</span>
+            </div>
+          </div>`;
+      });
+      container.innerHTML = html;
+    } else {
+      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">No US news available.</p>';
+    }
+  } catch (e) {
+    container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">Unable to load US news.</p>';
+  }
+}
+
+
+async function loadTechNews() {
+  const container = document.getElementById("techContainer");
+  try {
+    const response = await fetch(
+      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ffeeds.feedburner.com%2Ftechcrunch%2F"
+    );
+    const data = await response.json();
+    if (data.items && data.items.length > 0) {
+      let html = "";
+      data.items.slice(0, 5).forEach(item => {
+        const title = item.title || "Untitled";
+        const link = item.link || "#";
+        const desc = (item.description || "").replace(/<[^>]*>/g, "").substring(0, 150);
+        const pubDate = item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+        html += `
+          <div class="story">
+            <div class="headline">${title}</div>
+            <p>${desc}...</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <a href="${link}" target="_blank">Read full story</a>
+              <span style="color: var(--muted); font-size: 0.8em;">${pubDate}</span>
+            </div>
+          </div>`;
+      });
+      container.innerHTML = html;
+    } else {
+      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">No tech news available.</p>';
+    }
+  } catch (e) {
+    container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">Unable to load tech news.</p>';
+  }
+}
+
+async function loadMaristNews() {
+  const container = document.getElementById("maristContainer");
+  try {
+    const response = await fetch(
+      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnews.google.com%2Frss%2Fsearch%3Fq%3DMarist%2BUniversity%26hl%3Den-US%26gl%3DUS%26ceid%3DUS%3Aen"
+    );
+    const data = await response.json();
+    if (data.items && data.items.length > 0) {
+      let html = "";
+      data.items.slice(0, 5).forEach(item => {
+        const title = item.title || "Untitled";
+        const link = item.link || "#";
+        const desc = (item.description || "").replace(/<[^>]*>/g, "").substring(0, 150);
+        const pubDate = item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+        html += `
+          <div class="story">
+            <div class="headline">${title}</div>
+            <p>${desc}...</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <a href="${link}" target="_blank">Read full story</a>
+              <span style="color: var(--muted); font-size: 0.8em;">${pubDate}</span>
+            </div>
+          </div>`;
+      });
+      container.innerHTML = html;
+    } else {
+      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">No Marist news available.</p>';
+    }
+  } catch (e) {
+    container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">Unable to load Marist news.</p>';
+  }
+}
+
+window.onload = function() {
+  loadWeather();
+  loadWorldNews();
+  loadAINews();
+  loadTechNews();
+  loadUSNews();
+  loadLocalNews();
+  loadSportsNews();
+  loadMaristNews();
+  loadGiantsScore();
+  loadKnicksScore();
+  loadOriolesScore();
+  loadYankeesScore();
+  document.getElementById("currentDate").innerText = formatDateWithWeekday(
+    new Date().toISOString().split("T")[0]
+  );
+};
+</script>
+</head>
+
+<body>
+
+<header>
+  <div style="display: flex; align-items: center; gap: 16px;">
+    <img src="profile pic.png" alt="Profile" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid #4a4f57;">
+    <div>
+      <h1>JDA — Personal Daily Dashboard</h1>
+      <span id="currentDate" style="color: var(--muted); font-size: 0.9em; font-weight: 400;"></span>
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:column; align-items:flex-end;">
+    <span id="lastUpdated"></span>
+  </div>
+</header>
+
+<div class="container">
+
+  <div style="display: flex; gap: 16px; margin-bottom: 36px;">
+    <div id="giantsScore" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow);">
+      <p style="color: var(--muted); margin: 0;">Loading Giants score...</p>
+    </div>
+    <div id="knicksScore" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow);">
+      <p style="color: var(--muted); margin: 0;">Loading Knicks score...</p>
+    </div>
+    <div id="oriolesScore" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow);">
+      <p style="color: var(--muted); margin: 0;">Loading Orioles score...</p>
+    </div>
+    <div id="yankeesScore" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow);">
+      <p style="color: var(--muted); margin: 0;">Loading Yankees score...</p>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 16px; margin-bottom: 36px;">
+    <div class="stock-box" style="flex: 1;">
+      <h2 style="margin: 0 0 16px 0;">Bank of America (BAC)</h2>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+      {
+        "symbol": "NYSE:BAC",
+        "width": "100%",
+        "height": "120",
+        "locale": "en",
+        "colorTheme": "dark",
+        "isTransparent": false
+      }
+      </script>
+    </div>
+
+    <div class="stock-box" style="flex: 1;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 style="margin: 0;">Dow Jones (DJI)</h2>
+      </div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+      {
+        "symbol": "DJI",
+        "width": "100%",
+        "height": "120",
+        "locale": "en",
+        "colorTheme": "dark",
+        "isTransparent": false
+      }
+      </script>
+    </div>
+  </div>
+
+  <div class="weather-box">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+      <h2>Wayne, NJ Weather</h2>
+      <img id="currentWeatherIcon" src="" alt="Weather icon" style="width: 36px; height: 36px;">
+    </div>
+    <div id="weatherData">Loading weather...</div>
+    <h3 style="margin-top:24px;">7-Day Forecast</h3>
+    <div id="forecast"></div>
+  </div>
+
+  <div class="collapsible-header" onclick="toggleWorldNews()">
+    <span id="chevronWorld" class="chevron">▼</span>
+    <span style="display: flex; align-items: center; gap: 8px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      World News
+    </span>
+  </div>
+
+  <div id="worldContent" class="collapsible-content">
+    <div id="worldContainer" style="display: flex; flex-direction: column; gap: 16px;">
+      <p style="color: var(--muted); text-align: center; padding: 20px 0;">Loading world news...</p>
+    </div>
+  </div>
+
+  <div class="collapsible-header" onclick="toggleUSNews()">
+    <span id="chevronUS" class="chevron">▼</span>
+    <span style="display: flex; align-items: center; gap: 8px;">
+      <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border: 2px solid var(--accent-light); border-radius: 4px; font-size: 10px; font-weight: 700; color: var(--accent-light);">US</span>
+      US News
+    </span>
+  </div>
+
+  <div id="usContent" class="collapsible-content">
+    <div id="usContainer" style="display: flex; flex-direction: column; gap: 16px;">
+      <p style="color: var(--muted); text-align: center; padding: 20px 0;">Loading US news...</p>
+    </div>
+  </div>
+
+  <div class="collapsible-header" onclick="toggleTechNews()">
+    <span id="chevronTech" class="chevron">▼</span>
+    <span style="display: flex; align-items: center; gap: 8px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/></svg>
+      Tech News
+    </span>
+  </div>
+
+  <div id="techContent" class="collapsible-content">
+    <div id="techContainer" style="display: flex; flex-direction: column; gap: 16px;">
+      <p style="color: var(--muted); text-align: center; padding: 20px 0;">Loading tech news...</p>
+    </div>
+  </div>
+
+  <div class="collapsible-header" onclick="toggleAISection()">
+    <span id="chevron" class="chevron">▼</span>
+    <span style="display: flex; align-items: center; gap: 8px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="12" rx="2"/><circle cx="12" cy="14" r="2"/><path d="M12 8V4M8 4h8"/><circle cx="9" cy="13" r="0.5" fill="currentColor"/><circle cx="15" cy="13" r="0.5" fill="currentColor"/></svg>
+      AI News
+    </span>
+  </div>
+
+  <div id="aiContent" class="collapsible-content">
+    <div id="aiNewsContainer" style="display: flex; flex-direction: column; gap: 16px;">
+      <p style="color: var(--muted); text-align: center; padding: 20px 0;">Loading AI news...</p>
+    </div>
+  </div>
+
+  <div class="collapsible-header" onclick="toggleLocalNews()">
+    <span id="chevronLocal" class="chevron">▼</span>
+    <span style="display: flex; align-items: center; gap: 8px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Local News (Wayne, NJ)
+    </span>
+  </div>
+
+  <div id="localNewsContent" class="collapsible-content">
+    <div id="localNewsContainer" style="display: flex; flex-direction: column; gap: 16px;">
+      <p style="color: var(--muted); text-align: center; padding: 20px 0;">Loading local news...</p>
+    </div>
+  </div>
+
+  <div class="collapsible-header" onclick="toggleSportsNews()">
+    <span id="chevronSports" class="chevron">▼</span>
+    <span style="display: flex; align-items: center; gap: 8px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6" transform="rotate(-45 12 12)"/><path d="M8 16L16 8M10 14l2 2M12 12l2 2M14 10l2 2"/></svg>
+      Sports News
+    </span>
+  </div>
+
+  <div id="sportsContent" class="collapsible-content">
+    <div id="sportsContainer" style="display: flex; flex-direction: column; gap: 16px;">
+      <p style="color: var(--muted); text-align: center; padding: 20px 0;">Loading sports news...</p>
+    </div>
+  </div>
+
+  <div class="collapsible-header" onclick="toggleMaristNews()">
+    <span id="chevronMarist" class="chevron">▼</span>
+    <span style="display: flex; align-items: center; gap: 8px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 9l4 2v11h12V11l4-2L12 2z"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/></svg>
+      Marist News
+    </span>
+  </div>
+
+  <div id="maristContent" class="collapsible-content">
+    <div id="maristContainer" style="display: flex; flex-direction: column; gap: 16px;">
+      <p style="color: var(--muted); text-align: center; padding: 20px 0;">Loading Marist news...</p>
+    </div>
+  </div>
+
+  <div class="collapsible-header" onclick="toggleRowing()">
+    <span id="chevronRowing" class="chevron">▼</span>
+    <span style="display: flex; align-items: center; gap: 8px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 16l4-4 4 4 4-4 4 4 4-4"/><path d="M12 12V4M8 4h8"/></svg>
+      Rowing
+    </span>
+  </div>
+
+  <div id="rowingContent" class="collapsible-content">
+    <div style="display: flex; flex-direction: column; gap: 12px; padding: 8px 0 8px 24px;">
+      <a href="https://www.row2k.com" target="_blank" style="font-size: 1.05em;">Row2k.com</a>
+      <a href="https://log.concept2.com" target="_blank" style="font-size: 1.05em;">Concept2.com</a>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
