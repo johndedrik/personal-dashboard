@@ -215,8 +215,8 @@
   .forecast-day img {
     display: block;
     margin: 0 auto 6px;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
   }
 
   .forecast-day strong {
@@ -325,8 +325,8 @@
     }
 
     .forecast-day img {
-      width: 28px;
-      height: 28px;
+      width: 36px;
+      height: 36px;
     }
 
     .forecast-day strong {
@@ -1044,16 +1044,16 @@ window.onload = function() {
 <div class="container">
 
   <div style="display: flex; gap: 16px; margin-bottom: 36px;">
-    <div id="giantsScore" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow);">
+    <div id="giantsScore" onclick="window.open('https://www.espn.com/nfl/team/_/name/nyg/new-york-giants', '_blank')" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow); cursor: pointer; transition: box-shadow var(--transition), transform var(--transition);">
       <p style="color: var(--muted); margin: 0;">Loading Giants score...</p>
     </div>
-    <div id="knicksScore" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow);">
+    <div id="knicksScore" onclick="window.open('https://www.espn.com/nba/team/_/name/ny/new-york-knicks', '_blank')" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow); cursor: pointer; transition: box-shadow var(--transition), transform var(--transition);">
       <p style="color: var(--muted); margin: 0;">Loading Knicks score...</p>
     </div>
-    <div id="oriolesScore" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow);">
+    <div id="oriolesScore" onclick="window.open('https://www.espn.com/mlb/team/_/name/bal/baltimore-orioles', '_blank')" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow); cursor: pointer; transition: box-shadow var(--transition), transform var(--transition);">
       <p style="color: var(--muted); margin: 0;">Loading Orioles score...</p>
     </div>
-    <div id="yankeesScore" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow);">
+    <div id="yankeesScore" onclick="window.open('https://www.espn.com/mlb/team/_/name/nyy/new-york-yankees', '_blank')" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow); cursor: pointer; transition: box-shadow var(--transition), transform var(--transition);">
       <p style="color: var(--muted); margin: 0;">Loading Yankees score...</p>
     </div>
   </div>
