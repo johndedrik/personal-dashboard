@@ -374,7 +374,13 @@ function toggleWeather() {
   } else {
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
-    document.querySelector('[onclick="toggleWeather()"]').scrollIntoView({ behavior: "smooth", block: "start" });
+    setTimeout(() => {
+      const header = document.querySelector('[onclick="toggleWeather()"]');
+      if (header) {
+        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 300);
   }
 }
 
@@ -391,8 +397,12 @@ function toggleWorldNews() {
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
     setTimeout(() => {
-      document.querySelector('[onclick="toggleWorldNews()"]').scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+      const header = document.querySelector('[onclick="toggleWorldNews()"]');
+      if (header) {
+        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 300);
   }
 }
 
@@ -409,8 +419,12 @@ function toggleTechNews() {
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
     setTimeout(() => {
-      document.querySelector('[onclick="toggleTechNews()"]').scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+      const header = document.querySelector('[onclick="toggleTechNews()"]');
+      if (header) {
+        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 300);
   }
 }
 
@@ -427,8 +441,12 @@ function toggleUSNews() {
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
     setTimeout(() => {
-      document.querySelector('[onclick="toggleUSNews()"]').scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+      const header = document.querySelector('[onclick="toggleUSNews()"]');
+      if (header) {
+        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 300);
   }
 }
 
@@ -445,8 +463,12 @@ function toggleAISection() {
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
     setTimeout(() => {
-      document.querySelector('[onclick="toggleAISection()"]').scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+      const header = document.querySelector('[onclick="toggleAISection()"]');
+      if (header) {
+        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 300);
   }
 }
 
@@ -463,8 +485,12 @@ function toggleLocalNews() {
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
     setTimeout(() => {
-      document.querySelector('[onclick="toggleLocalNews()"]').scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+      const header = document.querySelector('[onclick="toggleLocalNews()"]');
+      if (header) {
+        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 300);
   }
 }
 
@@ -481,8 +507,12 @@ function toggleMaristNews() {
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
     setTimeout(() => {
-      document.querySelector('[onclick="toggleMaristNews()"]').scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+      const header = document.querySelector('[onclick="toggleMaristNews()"]');
+      if (header) {
+        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 300);
   }
 }
 
@@ -499,8 +529,12 @@ function toggleRowing() {
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
     setTimeout(() => {
-      document.querySelector('[onclick="toggleRowing()"]').scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+      const header = document.querySelector('[onclick="toggleRowing()"]');
+      if (header) {
+        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 300);
   }
 }
 
@@ -517,8 +551,12 @@ function toggleSportsNews() {
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
     setTimeout(() => {
-      document.querySelector('[onclick="toggleSportsNews()"]').scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+      const header = document.querySelector('[onclick="toggleSportsNews()"]');
+      if (header) {
+        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 300);
   }
 }
 
@@ -775,11 +813,11 @@ async function loadGiantsScore() {
         <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
           ${result} ${giantsScore} - ${oppScore} vs ${opponent.team.abbreviation}
         </div>
-        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 10px;">${date}</div>
-        <hr style="border: none; border-top: 1.5px solid var(--border); margin: 10px 0;">`;
+        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 4px;">${date}</div>
+        <hr style="border: none; border-top: 2px solid var(--border); margin: 4px 0;">`;
     } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); margin-bottom: 10px;">No recent games</div>
-        <hr style="border: none; border-top: 1.5px solid var(--border); margin: 10px 0;">`;
+      html += `<div style="font-size: 0.85em; color: var(--muted); margin-bottom: 0; min-height: 1.6em; display: flex; align-items: center; justify-content: center;">No recent games</div>
+        <hr style="border: none; border-top: 2px solid var(--border); margin: 4px 0 2px 0;">`;
     }
 
     if (nextGame) {
@@ -797,7 +835,7 @@ async function loadGiantsScore() {
         </div>
         <div style="font-size: 0.75em; color: var(--muted);">${date} · ${time}</div>`;
     } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); margin-top: 10px;">No upcoming games</div>`;
+      html += `<div style="font-size: 0.85em; color: var(--muted); margin-top: 2px; min-height: 1.6em; display: flex; align-items: center; justify-content: center;">No upcoming games</div>`;
     }
 
     el.innerHTML = html;
@@ -881,11 +919,11 @@ async function loadOriolesScore() {
         <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
           ${result} ${oriolesScore} - ${oppScore} vs ${opponent.team.abbreviation}
         </div>
-        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 10px;">${date}</div>
-        <hr style="border: none; border-top: 1.5px solid var(--border); margin: 10px 0;">`;
+        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 4px;">${date}</div>
+        <hr style="border: none; border-top: 2px solid var(--border); margin: 4px 0;">`;
     } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); margin-bottom: 10px;">No recent games</div>
-        <hr style="border: none; border-top: 1.5px solid var(--border); margin: 10px 0;">`;
+      html += `<div style="font-size: 0.85em; color: var(--muted); margin-bottom: 0; min-height: 1.6em; display: flex; align-items: center; justify-content: center;">No recent games</div>
+        <hr style="border: none; border-top: 2px solid var(--border); margin: 4px 0 2px 0;">`;
     }
 
     if (nextGame) {
@@ -903,7 +941,7 @@ async function loadOriolesScore() {
         </div>
         <div style="font-size: 0.75em; color: var(--muted);">${date} · ${time}</div>`;
     } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); margin-top: 10px;">No upcoming games</div>`;
+      html += `<div style="font-size: 0.85em; color: var(--muted); margin-top: 2px; min-height: 1.6em; display: flex; align-items: center; justify-content: center;">No upcoming games</div>`;
     }
 
     el.innerHTML = html;
@@ -982,11 +1020,11 @@ async function loadYankeesScore() {
         <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
           ${result} ${yankeesScore} - ${oppScore} vs ${opponent.team.abbreviation}
         </div>
-        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 10px;">${date}</div>
-        <hr style="border: none; border-top: 1.5px solid var(--border); margin: 10px 0;">`;
+        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 4px;">${date}</div>
+        <hr style="border: none; border-top: 2px solid var(--border); margin: 4px 0;">`;
     } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); margin-bottom: 10px;">No recent games</div>
-        <hr style="border: none; border-top: 1.5px solid var(--border); margin: 10px 0;">`;
+      html += `<div style="font-size: 0.85em; color: var(--muted); margin-bottom: 0; min-height: 1.6em; display: flex; align-items: center; justify-content: center;">No recent games</div>
+        <hr style="border: none; border-top: 2px solid var(--border); margin: 4px 0 2px 0;">`;
     }
 
     if (nextGame) {
@@ -1004,7 +1042,7 @@ async function loadYankeesScore() {
         </div>
         <div style="font-size: 0.75em; color: var(--muted);">${date} · ${time}</div>`;
     } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); margin-top: 10px;">No upcoming games</div>`;
+      html += `<div style="font-size: 0.85em; color: var(--muted); margin-top: 2px; min-height: 1.6em; display: flex; align-items: center; justify-content: center;">No upcoming games</div>`;
     }
 
     el.innerHTML = html;
@@ -1088,11 +1126,11 @@ async function loadKnicksScore() {
         <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
           ${result} ${knicksScore} - ${oppScore} vs ${opponent.team.abbreviation}
         </div>
-        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 10px;">${date}</div>
-        <hr style="border: none; border-top: 1.5px solid var(--border); margin: 10px 0;">`;
+        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 4px;">${date}</div>
+        <hr style="border: none; border-top: 2px solid var(--border); margin: 4px 0;">`;
     } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); margin-bottom: 10px;">No recent games</div>
-        <hr style="border: none; border-top: 1.5px solid var(--border); margin: 10px 0;">`;
+      html += `<div style="font-size: 0.85em; color: var(--muted); margin-bottom: 0; min-height: 1.6em; display: flex; align-items: center; justify-content: center;">No recent games</div>
+        <hr style="border: none; border-top: 2px solid var(--border); margin: 4px 0 2px 0;">`;
     }
 
     if (nextGame) {
@@ -1110,7 +1148,7 @@ async function loadKnicksScore() {
         </div>
         <div style="font-size: 0.75em; color: var(--muted);">${date} · ${time}</div>`;
     } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); margin-top: 10px;">No upcoming games</div>`;
+      html += `<div style="font-size: 0.85em; color: var(--muted); margin-top: 2px; min-height: 1.6em; display: flex; align-items: center; justify-content: center;">No upcoming games</div>`;
     }
 
     el.innerHTML = html;
