@@ -236,10 +236,24 @@
     letter-spacing: -0.01em;
   }
 
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .refreshing {
+    animation: spin 0.8s ease-in-out;
+  }
+
   @media (max-width: 768px) {
-    /* Stock boxes stack vertically */
+    /* Stock boxes stay side by side on mobile */
     .container > div[style*="display: flex"]:has(.stock-box) {
-      flex-direction: column;
+      flex-wrap: wrap;
+    }
+
+    .container > div[style*="display: flex"]:has(.stock-box) > .stock-box {
+      min-width: calc(50% - 8px);
+      flex: none;
     }
 
     header {
@@ -356,6 +370,7 @@ function toggleWeather() {
   } else {
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
+    document.querySelector('[onclick="toggleWeather()"]').scrollIntoView({ behavior: "smooth", block: "start" });
   }
 }
 
@@ -371,6 +386,9 @@ function toggleWorldNews() {
     collapseAll();
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
+    setTimeout(() => {
+      document.querySelector('[onclick="toggleWorldNews()"]').scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   }
 }
 
@@ -386,6 +404,9 @@ function toggleTechNews() {
     collapseAll();
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
+    setTimeout(() => {
+      document.querySelector('[onclick="toggleTechNews()"]').scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   }
 }
 
@@ -401,6 +422,9 @@ function toggleUSNews() {
     collapseAll();
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
+    setTimeout(() => {
+      document.querySelector('[onclick="toggleUSNews()"]').scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   }
 }
 
@@ -416,6 +440,9 @@ function toggleAISection() {
     collapseAll();
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
+    setTimeout(() => {
+      document.querySelector('[onclick="toggleAISection()"]').scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   }
 }
 
@@ -431,6 +458,9 @@ function toggleLocalNews() {
     collapseAll();
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
+    setTimeout(() => {
+      document.querySelector('[onclick="toggleLocalNews()"]').scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   }
 }
 
@@ -446,6 +476,9 @@ function toggleMaristNews() {
     collapseAll();
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
+    setTimeout(() => {
+      document.querySelector('[onclick="toggleMaristNews()"]').scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   }
 }
 
@@ -461,6 +494,9 @@ function toggleRowing() {
     collapseAll();
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
+    setTimeout(() => {
+      document.querySelector('[onclick="toggleRowing()"]').scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   }
 }
 
@@ -476,6 +512,9 @@ function toggleSportsNews() {
     collapseAll();
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
+    setTimeout(() => {
+      document.querySelector('[onclick="toggleSportsNews()"]').scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   }
 }
 
@@ -628,7 +667,7 @@ async function loadSportsNews() {
   const container = document.getElementById("sportsContainer");
   try {
     const response = await fetch(
-      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnews.google.com%2Frss%2Fsearch%3Fq%3Dsports%26hl%3Den-US%26gl%3DUS%26ceid%3DUS%3Aen"
+      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.espn.com%2Fespn%2Frss%2Fnews"
     );
     const data = await response.json();
     if (data.items && data.items.length > 0) {
@@ -663,51 +702,99 @@ async function loadGiantsScore() {
     const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard");
     const data = await res.json();
     const games = data.events || [];
-    let giantsGame = games.find(g => {
+    const teamGames = games.filter(g => {
       const comp = g.competitions && g.competitions[0];
       if (!comp) return false;
       return comp.competitors.some(c => c.team.abbreviation === "NYG");
     });
-    if (!giantsGame) {
-      const today = new Date();
-      const endDate = new Date(today);
-      endDate.setDate(endDate.getDate() + 30);
-      const fmt = d => d.toISOString().split("T")[0].replace(/-/g, "");
-      const dateRange = `${fmt(today)}-${fmt(endDate)}`;
-      const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${dateRange}`);
-      const data2 = await res2.json();
-      const games2 = data2.events || [];
-      giantsGame = games2.find(g => {
-        const comp = g.competitions && g.competitions[0];
-        if (!comp) return false;
-        return comp.competitors.some(c => c.team.abbreviation === "NYG");
-      });
+    let lastGame = teamGames.find(g => g.status && g.status.type && g.status.type.state === "post");
+    let nextGame = teamGames.find(g => g.status && g.status.type && (g.status.type.state === "pre" || g.status.type.state === "in"));
+
+    // If no next game found, look forward 21 days
+    if (!nextGame) {
+      for (let i = 0; i <= 21; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() + i);
+        const dateStr = d.toISOString().split("T")[0].replace(/-/g, "");
+        const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${dateStr}`);
+        const data2 = await res2.json();
+        const futureGames = (data2.events || []).filter(g => {
+          const comp = g.competitions && g.competitions[0];
+          if (!comp) return false;
+          return comp.competitors.some(c => c.team.abbreviation === "NYG");
+        });
+        if (futureGames.length > 0) {
+          nextGame = futureGames[0];
+          break;
+        }
+      }
     }
-    if (giantsGame) {
-      const comp = giantsGame.competitions[0];
+
+    // If no recent game found, look back 30 days one day at a time
+    if (!lastGame) {
+      for (let i = 1; i <= 30; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split("T")[0].replace(/-/g, "");
+        const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${dateStr}`);
+        const data2 = await res2.json();
+        const pastGames = (data2.events || []).filter(g => {
+          const comp = g.competitions && g.competitions[0];
+          if (!comp) return false;
+          return comp.competitors.some(c => c.team.abbreviation === "NYG") && g.status && g.status.type && g.status.type.state === "post";
+        });
+        if (pastGames.length > 0) {
+          lastGame = pastGames[0];
+          break;
+        }
+      }
+    }
+
+    let html = `
+      <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px;">
+        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" alt="NY Giants" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
+        <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">GIANTS</span>
+      </div>`;
+
+    if (lastGame) {
+      const comp = lastGame.competitions[0];
       const home = comp.competitors[0];
       const away = comp.competitors[1];
-      const status = giantsGame.status && giantsGame.status.type && giantsGame.status.type.detail || "Unknown";
-      const date = giantsGame.date ? new Date(giantsGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-      el.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
-          <img src="https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" alt="NY Giants" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
-          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">GIANTS</span>
+      const giantsIsHome = home.team.abbreviation === "NYG";
+      const opponent = giantsIsHome ? away : home;
+      const giantsScore = giantsIsHome ? home.score : away.score;
+      const oppScore = giantsIsHome ? away.score : home.score;
+      const result = giantsScore > oppScore ? "W" : "L";
+      const date = lastGame.date ? new Date(lastGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+      html += `
+        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">LAST GAME</div>
+        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
+          ${result} ${giantsScore} - ${oppScore} vs ${opponent.team.abbreviation}
         </div>
-        <div style="font-size: 1.5em; font-weight: 600; color: var(--text);">
-          ${away.team.abbreviation} ${away.score} — ${home.team.abbreviation} ${home.score}
-        </div>
-        <div style="font-size: 0.9em; color: var(--muted); margin-top: 6px;">${status} · ${date}</div>
-      `;
+        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 10px;">${date}</div>`;
     } else {
-      el.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
-          <img src="https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" alt="NY Giants" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
-          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">GIANTS</span>
-        </div>
-        <p style="color: var(--muted); margin: 0;">No games scheduled within the next 30 days.</p>
-      `;
+      html += `<div style="font-size: 0.85em; color: var(--muted); margin-bottom: 10px;">No recent games</div>`;
     }
+
+    if (nextGame) {
+      const comp = nextGame.competitions[0];
+      const home = comp.competitors[0];
+      const away = comp.competitors[1];
+      const giantsIsHome = home.team.abbreviation === "NYG";
+      const opponent = giantsIsHome ? away : home;
+      const date = nextGame.date ? new Date(nextGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+      const time = nextGame.date ? new Date(nextGame.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "";
+      html += `
+        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">NEXT GAME</div>
+        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
+          ${giantsIsHome ? "vs" : "at"} ${opponent.team.abbreviation}
+        </div>
+        <div style="font-size: 0.75em; color: var(--muted);">${date} · ${time}</div>`;
+    } else {
+      html += `<div style="font-size: 0.85em; color: var(--muted);">No upcoming games</div>`;
+    }
+
+    el.innerHTML = html;
   } catch (e) {
     el.innerHTML = '<p style="color: var(--muted); margin: 0;">Unable to load Giants score.</p>';
   }
@@ -719,51 +806,99 @@ async function loadOriolesScore() {
     const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard");
     const data = await res.json();
     const games = data.events || [];
-    let oriolesGame = games.find(g => {
+    const teamGames = games.filter(g => {
       const comp = g.competitions && g.competitions[0];
       if (!comp) return false;
       return comp.competitors.some(c => c.team.abbreviation === "BAL");
     });
-    if (!oriolesGame) {
-      const today = new Date();
-      const endDate = new Date(today);
-      endDate.setDate(endDate.getDate() + 30);
-      const fmt = d => d.toISOString().split("T")[0].replace(/-/g, "");
-      const dateRange = `${fmt(today)}-${fmt(endDate)}`;
-      const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${dateRange}`);
-      const data2 = await res2.json();
-      const games2 = data2.events || [];
-      oriolesGame = games2.find(g => {
-        const comp = g.competitions && g.competitions[0];
-        if (!comp) return false;
-        return comp.competitors.some(c => c.team.abbreviation === "BAL");
-      });
+    let lastGame = teamGames.find(g => g.status && g.status.type && g.status.type.state === "post");
+    let nextGame = teamGames.find(g => g.status && g.status.type && (g.status.type.state === "pre" || g.status.type.state === "in"));
+
+    // If no next game found, look forward 21 days
+    if (!nextGame) {
+      for (let i = 0; i <= 21; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() + i);
+        const dateStr = d.toISOString().split("T")[0].replace(/-/g, "");
+        const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${dateStr}`);
+        const data2 = await res2.json();
+        const futureGames = (data2.events || []).filter(g => {
+          const comp = g.competitions && g.competitions[0];
+          if (!comp) return false;
+          return comp.competitors.some(c => c.team.abbreviation === "BAL");
+        });
+        if (futureGames.length > 0) {
+          nextGame = futureGames[0];
+          break;
+        }
+      }
     }
-    if (oriolesGame) {
-      const comp = oriolesGame.competitions[0];
+
+    // If no recent game found, look back 30 days one day at a time
+    if (!lastGame) {
+      for (let i = 1; i <= 30; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split("T")[0].replace(/-/g, "");
+        const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${dateStr}`);
+        const data2 = await res2.json();
+        const pastGames = (data2.events || []).filter(g => {
+          const comp = g.competitions && g.competitions[0];
+          if (!comp) return false;
+          return comp.competitors.some(c => c.team.abbreviation === "BAL") && g.status && g.status.type && g.status.type.state === "post";
+        });
+        if (pastGames.length > 0) {
+          lastGame = pastGames[0];
+          break;
+        }
+      }
+    }
+
+    let html = `
+      <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px;">
+        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/bal.png" alt="Baltimore Orioles" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
+        <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">ORIOLES</span>
+      </div>`;
+
+    if (lastGame) {
+      const comp = lastGame.competitions[0];
       const home = comp.competitors[0];
       const away = comp.competitors[1];
-      const status = oriolesGame.status && oriolesGame.status.type && oriolesGame.status.type.detail || "Unknown";
-      const date = oriolesGame.date ? new Date(oriolesGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-      el.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
-          <img src="https://a.espncdn.com/i/teamlogos/mlb/500/bal.png" alt="Baltimore Orioles" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
-          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">ORIOLES</span>
+      const oriolesIsHome = home.team.abbreviation === "BAL";
+      const opponent = oriolesIsHome ? away : home;
+      const oriolesScore = oriolesIsHome ? home.score : away.score;
+      const oppScore = oriolesIsHome ? away.score : home.score;
+      const result = oriolesScore > oppScore ? "W" : "L";
+      const date = lastGame.date ? new Date(lastGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+      html += `
+        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">LAST GAME</div>
+        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
+          ${result} ${oriolesScore} - ${oppScore} vs ${opponent.team.abbreviation}
         </div>
-        <div style="font-size: 1.5em; font-weight: 600; color: var(--text);">
-          ${away.team.abbreviation} ${away.score} — ${home.team.abbreviation} ${home.score}
-        </div>
-        <div style="font-size: 0.9em; color: var(--muted); margin-top: 6px;">${status} · ${date}</div>
-      `;
+        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 10px;">${date}</div>`;
     } else {
-      el.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
-          <img src="https://a.espncdn.com/i/teamlogos/mlb/500/bal.png" alt="Baltimore Orioles" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
-          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">ORIOLES</span>
-        </div>
-        <p style="color: var(--muted); margin: 0;">No games scheduled within the next 30 days.</p>
-      `;
+      html += `<div style="font-size: 0.85em; color: var(--muted); margin-bottom: 10px;">No recent games</div>`;
     }
+
+    if (nextGame) {
+      const comp = nextGame.competitions[0];
+      const home = comp.competitors[0];
+      const away = comp.competitors[1];
+      const oriolesIsHome = home.team.abbreviation === "BAL";
+      const opponent = oriolesIsHome ? away : home;
+      const date = nextGame.date ? new Date(nextGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+      const time = nextGame.date ? new Date(nextGame.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "";
+      html += `
+        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">NEXT GAME</div>
+        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
+          ${oriolesIsHome ? "vs" : "at"} ${opponent.team.abbreviation}
+        </div>
+        <div style="font-size: 0.75em; color: var(--muted);">${date} · ${time}</div>`;
+    } else {
+      html += `<div style="font-size: 0.85em; color: var(--muted);">No upcoming games</div>`;
+    }
+
+    el.innerHTML = html;
   } catch (e) {
     el.innerHTML = '<p style="color: var(--muted); margin: 0;">Unable to load Orioles score.</p>';
   }
@@ -775,51 +910,94 @@ async function loadYankeesScore() {
     const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard");
     const data = await res.json();
     const games = data.events || [];
-    let yankeesGame = games.find(g => {
+    const teamGames = games.filter(g => {
       const comp = g.competitions && g.competitions[0];
       if (!comp) return false;
       return comp.competitors.some(c => c.team.abbreviation === "NYY");
     });
-    if (!yankeesGame) {
-      const today = new Date();
-      const endDate = new Date(today);
-      endDate.setDate(endDate.getDate() + 30);
-      const fmt = d => d.toISOString().split("T")[0].replace(/-/g, "");
-      const dateRange = `${fmt(today)}-${fmt(endDate)}`;
-      const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${dateRange}`);
+    let lastGame = teamGames.find(g => g.status && g.status.type && g.status.type.state === "post");
+    let nextGame = teamGames.find(g => g.status && g.status.type && (g.status.type.state === "pre" || g.status.type.state === "in"));
+
+    // If no next game found on current scoreboard, check today's date explicitly
+    if (!nextGame) {
+      const todayStr = new Date().toISOString().split("T")[0].replace(/-/g, "");
+      const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${todayStr}`);
       const data2 = await res2.json();
-      const games2 = data2.events || [];
-      yankeesGame = games2.find(g => {
+      const todayGames = (data2.events || []).filter(g => {
         const comp = g.competitions && g.competitions[0];
         if (!comp) return false;
         return comp.competitors.some(c => c.team.abbreviation === "NYY");
       });
+      if (todayGames.length > 0) {
+        nextGame = todayGames[0];
+      }
     }
-    if (yankeesGame) {
-      const comp = yankeesGame.competitions[0];
+
+    // If no recent game found, look back 30 days one day at a time
+    if (!lastGame) {
+      for (let i = 1; i <= 30; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split("T")[0].replace(/-/g, "");
+        const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${dateStr}`);
+        const data2 = await res2.json();
+        const pastGames = (data2.events || []).filter(g => {
+          const comp = g.competitions && g.competitions[0];
+          if (!comp) return false;
+          return comp.competitors.some(c => c.team.abbreviation === "NYY") && g.status && g.status.type && g.status.type.state === "post";
+        });
+        if (pastGames.length > 0) {
+          lastGame = pastGames[0];
+          break;
+        }
+      }
+    }
+
+    let html = `
+      <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px;">
+        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" alt="New York Yankees" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
+        <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">YANKEES</span>
+      </div>`;
+
+    if (lastGame) {
+      const comp = lastGame.competitions[0];
       const home = comp.competitors[0];
       const away = comp.competitors[1];
-      const status = yankeesGame.status && yankeesGame.status.type && yankeesGame.status.type.detail || "Unknown";
-      const date = yankeesGame.date ? new Date(yankeesGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-      el.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
-          <img src="https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" alt="New York Yankees" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
-          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">YANKEES</span>
+      const yankeesIsHome = home.team.abbreviation === "NYY";
+      const opponent = yankeesIsHome ? away : home;
+      const yankeesScore = yankeesIsHome ? home.score : away.score;
+      const oppScore = yankeesIsHome ? away.score : home.score;
+      const result = yankeesScore > oppScore ? "W" : "L";
+      const date = lastGame.date ? new Date(lastGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+      html += `
+        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">LAST GAME</div>
+        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
+          ${result} ${yankeesScore} - ${oppScore} vs ${opponent.team.abbreviation}
         </div>
-        <div style="font-size: 1.5em; font-weight: 600; color: var(--text);">
-          ${away.team.abbreviation} ${away.score} — ${home.team.abbreviation} ${home.score}
-        </div>
-        <div style="font-size: 0.9em; color: var(--muted); margin-top: 6px;">${status} · ${date}</div>
-      `;
+        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 10px;">${date}</div>`;
     } else {
-      el.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
-          <img src="https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" alt="New York Yankees" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
-          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">YANKEES</span>
-        </div>
-        <p style="color: var(--muted); margin: 0;">No games scheduled within the next 30 days.</p>
-      `;
+      html += `<div style="font-size: 0.85em; color: var(--muted); margin-bottom: 10px;">No recent games</div>`;
     }
+
+    if (nextGame) {
+      const comp = nextGame.competitions[0];
+      const home = comp.competitors[0];
+      const away = comp.competitors[1];
+      const yankeesIsHome = home.team.abbreviation === "NYY";
+      const opponent = yankeesIsHome ? away : home;
+      const date = nextGame.date ? new Date(nextGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+      const time = nextGame.date ? new Date(nextGame.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "";
+      html += `
+        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">NEXT GAME</div>
+        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
+          ${yankeesIsHome ? "vs" : "at"} ${opponent.team.abbreviation}
+        </div>
+        <div style="font-size: 0.75em; color: var(--muted);">${date} · ${time}</div>`;
+    } else {
+      html += `<div style="font-size: 0.85em; color: var(--muted);">No upcoming games</div>`;
+    }
+
+    el.innerHTML = html;
   } catch (e) {
     el.innerHTML = '<p style="color: var(--muted); margin: 0;">Unable to load Yankees score.</p>';
   }
@@ -831,37 +1009,99 @@ async function loadKnicksScore() {
     const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard");
     const data = await res.json();
     const games = data.events || [];
-    let knicksGame = games.find(g => {
+    const teamGames = games.filter(g => {
       const comp = g.competitions && g.competitions[0];
       if (!comp) return false;
       return comp.competitors.some(c => c.team.abbreviation === "NYK");
     });
-    if (!knicksGame) {
-      el.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
-          <img src="https://a.espncdn.com/i/teamlogos/nba/500/nyk.png" alt="New York Knicks" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
-          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">KNICKS</span>
-        </div>
-        <p style="color: var(--muted); margin: 0;">No games scheduled within the next 30 days.</p>
-      `;
+    let lastGame = teamGames.find(g => g.status && g.status.type && g.status.type.state === "post");
+    let nextGame = teamGames.find(g => g.status && g.status.type && (g.status.type.state === "pre" || g.status.type.state === "in"));
+
+    // If no next game found, look forward 21 days
+    if (!nextGame) {
+      for (let i = 0; i <= 21; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() + i);
+        const dateStr = d.toISOString().split("T")[0].replace(/-/g, "");
+        const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${dateStr}`);
+        const data2 = await res2.json();
+        const futureGames = (data2.events || []).filter(g => {
+          const comp = g.competitions && g.competitions[0];
+          if (!comp) return false;
+          return comp.competitors.some(c => c.team.abbreviation === "NYK");
+        });
+        if (futureGames.length > 0) {
+          nextGame = futureGames[0];
+          break;
+        }
+      }
     }
-    if (knicksGame) {
-      const comp = knicksGame.competitions[0];
+
+    // If no recent game found, look back 30 days one day at a time
+    if (!lastGame) {
+      for (let i = 1; i <= 30; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split("T")[0].replace(/-/g, "");
+        const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${dateStr}`);
+        const data2 = await res2.json();
+        const pastGames = (data2.events || []).filter(g => {
+          const comp = g.competitions && g.competitions[0];
+          if (!comp) return false;
+          return comp.competitors.some(c => c.team.abbreviation === "NYK") && g.status && g.status.type && g.status.type.state === "post";
+        });
+        if (pastGames.length > 0) {
+          lastGame = pastGames[0];
+          break;
+        }
+      }
+    }
+
+    let html = `
+      <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px;">
+        <img src="https://a.espncdn.com/i/teamlogos/nba/500/nyk.png" alt="New York Knicks" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
+        <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">KNICKS</span>
+      </div>`;
+
+    if (lastGame) {
+      const comp = lastGame.competitions[0];
       const home = comp.competitors[0];
       const away = comp.competitors[1];
-      const status = knicksGame.status && knicksGame.status.type && knicksGame.status.type.detail || "Unknown";
-      const date = knicksGame.date ? new Date(knicksGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-      el.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
-          <img src="https://a.espncdn.com/i/teamlogos/nba/500/nyk.png" alt="New York Knicks" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
-          <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">KNICKS</span>
+      const knicksIsHome = home.team.abbreviation === "NYK";
+      const opponent = knicksIsHome ? away : home;
+      const knicksScore = knicksIsHome ? home.score : away.score;
+      const oppScore = knicksIsHome ? away.score : home.score;
+      const result = knicksScore > oppScore ? "W" : "L";
+      const date = lastGame.date ? new Date(lastGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+      html += `
+        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">LAST GAME</div>
+        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
+          ${result} ${knicksScore} - ${oppScore} vs ${opponent.team.abbreviation}
         </div>
-        <div style="font-size: 1.5em; font-weight: 600; color: var(--text);">
-          ${away.team.abbreviation} ${away.score} — ${home.team.abbreviation} ${home.score}
-        </div>
-        <div style="font-size: 0.9em; color: var(--muted); margin-top: 6px;">${status} · ${date}</div>
-      `;
+        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 10px;">${date}</div>`;
+    } else {
+      html += `<div style="font-size: 0.85em; color: var(--muted); margin-bottom: 10px;">No recent games</div>`;
     }
+
+    if (nextGame) {
+      const comp = nextGame.competitions[0];
+      const home = comp.competitors[0];
+      const away = comp.competitors[1];
+      const knicksIsHome = home.team.abbreviation === "NYK";
+      const opponent = knicksIsHome ? away : home;
+      const date = nextGame.date ? new Date(nextGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+      const time = nextGame.date ? new Date(nextGame.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "";
+      html += `
+        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">NEXT GAME</div>
+        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
+          ${knicksIsHome ? "vs" : "at"} ${opponent.team.abbreviation}
+        </div>
+        <div style="font-size: 0.75em; color: var(--muted);">${date} · ${time}</div>`;
+    } else {
+      html += `<div style="font-size: 0.85em; color: var(--muted);">No upcoming games</div>`;
+    }
+
+    el.innerHTML = html;
   } catch (e) {
     el.innerHTML = '<p style="color: var(--muted); margin: 0;">Unable to load Knicks score.</p>';
   }
@@ -1024,7 +1264,7 @@ window.onload = function() {
 
 <body>
 
-<button onclick="location.reload()" title="Refresh page" style="position: fixed; top: 16px; right: 16px; z-index: 1000; background: var(--card-bg-raised); border: 1px solid var(--border); color: var(--text); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2em; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); transition: all var(--transition);">
+<button onclick="this.classList.add('refreshing'); setTimeout(() => location.reload(), 800);" title="Refresh page" style="position: fixed; top: 16px; right: 16px; z-index: 1000; background: var(--card-bg-raised); border: 1px solid var(--border); color: var(--text); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2em; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); transition: all var(--transition);">
   ↻
 </button>
 
