@@ -355,27 +355,28 @@
 
 <script>
 function collapseAll() {
-  ["worldContent", "aiContent", "techContent", "usContent", "localNewsContent", "sportsContent", "maristContent", "rowingContent"].forEach(id => {
+  ["worldContent", "aiContent", "techContent", "usContent", "localNewsContent", "sportsContent", "maristContent", "rowingContent", "forecastContent"].forEach(id => {
     document.getElementById(id).style.maxHeight = null;
   });
-  ["chevronWorld", "chevron", "chevronTech", "chevronUS", "chevronLocal", "chevronSports", "chevronMarist", "chevronRowing"].forEach(id => {
+  ["chevronWorld", "chevron", "chevronTech", "chevronUS", "chevronLocal", "chevronSports", "chevronMarist", "chevronRowing", "chevronForecast"].forEach(id => {
     document.getElementById(id).classList.remove("rotate");
   });
 }
 
-// Collapsible Weather section
-function toggleWeather() {
-  const content = document.getElementById("weatherContent");
-  const chevron = document.getElementById("chevronWeather");
+// Collapsible Forecast section
+function toggleForecast() {
+  const content = document.getElementById("forecastContent");
+  const chevron = document.getElementById("chevronForecast");
 
-  if (chevron.classList.contains("rotate")) {
+  if (content.style.maxHeight) {
     content.style.maxHeight = null;
     chevron.classList.remove("rotate");
   } else {
+    collapseAll();
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
     setTimeout(() => {
-      const header = document.querySelector('[onclick="toggleWeather()"]');
+      const header = document.querySelector('[onclick="toggleForecast()"]');
       if (header) {
         const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
         window.scrollTo({ top: y, behavior: "smooth" });
@@ -797,9 +798,9 @@ async function loadGiantsScore() {
         <img src="https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" alt="NY Giants" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
         <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">GIANTS</span>
       </div>
-      <div style="display: flex; flex-direction: column; flex: 1; justify-content: center; min-height: 80px;">`;
+      <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 120px; position: relative;">`;
 
-    html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">`;
+    html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 16px;">`;
     if (lastGame) {
       const comp = lastGame.competitions[0];
       const home = comp.competitors[0];
@@ -815,15 +816,15 @@ async function loadGiantsScore() {
         <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
           ${result} ${giantsScore} - ${oppScore} vs ${opponent.team.abbreviation}
         </div>
-        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 4px;">${date}</div>`;
+        <div style="font-size: 0.75em; color: var(--muted);">${date}</div>`;
     } else {
       html += `<div style="font-size: 0.85em; color: var(--muted); display: flex; align-items: center; justify-content: center;">No recent games</div>`;
     }
     html += `</div>`;
 
-    html += `<hr style="border: none; border-top: 2px solid #ffffff; margin: 8px auto; opacity: 0.7; width: 90%;">`;
+    html += `<hr style="border: none; border-top: 2px solid #ffffff; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0; opacity: 0.7; width: 90%;">`;
 
-    html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">`;
+    html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding-top: 16px;">`;
     if (nextGame) {
       const comp = nextGame.competitions[0];
       const home = comp.competitors[0];
@@ -908,7 +909,7 @@ async function loadOriolesScore() {
         <img src="https://a.espncdn.com/i/teamlogos/mlb/500/bal.png" alt="Baltimore Orioles" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
         <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">ORIOLES</span>
       </div>
-      <div style="display: flex; flex-direction: column; flex: 1; justify-content: center; min-height: 80px;">`;
+      <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 120px; position: relative;">`;
 
     html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">`;
     if (lastGame) {
@@ -932,7 +933,7 @@ async function loadOriolesScore() {
     }
     html += `</div>`;
 
-    html += `<hr style="border: none; border-top: 2px solid #ffffff; margin: 8px auto; opacity: 0.7; width: 90%;">`;
+    html += `<hr style="border: none; border-top: 2px solid #ffffff; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0; opacity: 0.7; width: 90%;">`;
 
     html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">`;
     if (nextGame) {
@@ -1014,7 +1015,7 @@ async function loadYankeesScore() {
         <img src="https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" alt="New York Yankees" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
         <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">YANKEES</span>
       </div>
-      <div style="display: flex; flex-direction: column; flex: 1; justify-content: center; min-height: 80px;">`;
+      <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 120px; position: relative;">`;
 
     html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">`;
     if (lastGame) {
@@ -1038,7 +1039,7 @@ async function loadYankeesScore() {
     }
     html += `</div>`;
 
-    html += `<hr style="border: none; border-top: 2px solid #ffffff; margin: 8px auto; opacity: 0.7; width: 90%;">`;
+    html += `<hr style="border: none; border-top: 2px solid #ffffff; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0; opacity: 0.7; width: 90%;">`;
 
     html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">`;
     if (nextGame) {
@@ -1125,7 +1126,7 @@ async function loadKnicksScore() {
         <img src="https://a.espncdn.com/i/teamlogos/nba/500/nyk.png" alt="New York Knicks" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
         <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">KNICKS</span>
       </div>
-      <div style="display: flex; flex-direction: column; flex: 1; justify-content: center; min-height: 80px;">`;
+      <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 120px; position: relative;">`;
 
     html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">`;
     if (lastGame) {
@@ -1149,7 +1150,7 @@ async function loadKnicksScore() {
     }
     html += `</div>`;
 
-    html += `<hr style="border: none; border-top: 2px solid #ffffff; margin: 8px auto; opacity: 0.7; width: 90%;">`;
+    html += `<hr style="border: none; border-top: 2px solid #ffffff; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0; opacity: 0.7; width: 90%;">`;
 
     html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">`;
     if (nextGame) {
@@ -1353,7 +1354,7 @@ window.onload = function() {
 
 <div class="container">
 
-  <div style="display: flex; gap: 16px; margin-bottom: 36px;">
+  <div style="display: flex; gap: 16px; margin-bottom: 20px;">
     <div id="giantsScore" onclick="window.open('https://www.espn.com/nfl/team/_/name/nyg/new-york-giants', '_blank')" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow); cursor: pointer; transition: box-shadow var(--transition), transform var(--transition); display: flex; flex-direction: column; min-height: 160px;">
       <p style="color: var(--muted); margin: 0;">Loading Giants score...</p>
     </div>
@@ -1368,14 +1369,14 @@ window.onload = function() {
     </div>
   </div>
 
-  <div style="display: flex; gap: 16px; margin-bottom: 36px;">
-    <div class="stock-box" style="flex: 1;">
-      <h2 style="margin: 0 0 16px 0;">Bank of America (BAC)</h2>
+  <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+    <div class="stock-box" style="flex: 1; padding: 12px 16px;">
+      <h2 style="margin: 0 0 4px 0; font-size: 0.9em;">Bank of America (BAC)</h2>
       <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
       {
         "symbol": "NYSE:BAC",
         "width": "100%",
-        "height": "120",
+        "height": "60",
         "locale": "en",
         "colorTheme": "dark",
         "isTransparent": false
@@ -1383,15 +1384,15 @@ window.onload = function() {
       </script>
     </div>
 
-    <div class="stock-box" style="flex: 1;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h2 style="margin: 0;">Dow Jones (DJI)</h2>
+    <div class="stock-box" style="flex: 1; padding: 12px 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+        <h2 style="margin: 0; font-size: 0.9em;">Dow Jones (DJI)</h2>
       </div>
       <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
       {
         "symbol": "DJI",
         "width": "100%",
-        "height": "120",
+        "height": "60",
         "locale": "en",
         "colorTheme": "dark",
         "isTransparent": false
@@ -1400,18 +1401,23 @@ window.onload = function() {
     </div>
   </div>
 
-  <div class="collapsible-header" onclick="toggleWeather()" style="margin-top: 36px;">
-    <span id="chevronWeather" class="chevron rotate">▼</span>
+  <div style="background: var(--card-bg); padding: 18px 20px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-top: 20px; margin-bottom: 12px;">
     <span style="display: flex; align-items: center; gap: 12px;">
-      <h2 style="margin: 0; font-size: 1.15em; font-weight: 500;">Wayne, NJ Weather</h2>
+      <h2 style="margin: 0; font-size: 1.15em; font-weight: 500; color: var(--accent-light);">Wayne, NJ Weather</h2>
       <img id="currentWeatherIcon" src="" alt="Weather icon" style="width: 36px; height: 36px;">
+    </span>
+    <div id="weatherData" style="margin-top: 16px; font-size: 1.1em; line-height: 1.8; font-weight: 500; color: var(--text);">Loading weather...</div>
+  </div>
+
+  <div class="collapsible-header" onclick="toggleForecast()">
+    <span id="chevronForecast" class="chevron">▼</span>
+    <span style="display: flex; align-items: center; gap: 8px;">
+      <h2 style="margin: 0; font-size: 1.15em; font-weight: 500;">7-Day Forecast</h2>
     </span>
   </div>
 
-  <div id="weatherContent" class="collapsible-content" style="max-height: none; padding-bottom: 24px;">
-    <div id="weatherData" style="margin-top: 16px;">Loading weather...</div>
-    <h3 style="margin-top:24px;">7-Day Forecast</h3>
-    <div id="forecast"></div>
+  <div id="forecastContent" class="collapsible-content">
+    <div id="forecast" style="margin-bottom: 16px;"></div>
   </div>
 
   <div class="collapsible-header" onclick="toggleWorldNews()">
