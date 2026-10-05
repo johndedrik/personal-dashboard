@@ -312,9 +312,11 @@
     h1 { font-size: 1.35em; }
     main { padding: 24px 14px 48px; }
     .stock-row { flex-wrap: wrap; }
-    .stock-card { flex: 1 1 45%; font-size: 0.85em; padding: 14px 12px; }
-    .stock-card .price { font-size: 1.05em; }
-    .stock-card h3 { font-size: 0.9em; margin-bottom: 6px; }
+    /* The cards go two-up here, so tighten the padding rather than the text -
+       a phone should never render prices smaller than desktop does. */
+    .stock-card { flex: 1 1 45%; font-size: 1.05em; padding: 14px 12px; }
+    .stock-card .price { font-size: 1.3em; }
+    .stock-card h3 { font-size: 0.95em; margin-bottom: 6px; }
     .score-row { flex-wrap: wrap; }
     .scorecard { flex: 1 1 45%; padding: 16px 14px; min-height: 170px; }
     .scorecard-title { font-size: 0.72em; margin-bottom: 10px; padding-bottom: 6px; }
@@ -325,6 +327,11 @@
 
   @media (max-width: 480px) {
     .stock-card, .scorecard { flex: 1 1 100%; }
+    /* Single column, so there is room for the largest price yet. The longest
+       value is the DJIA's five digits plus its change, so let it wrap. */
+    .stock-card { font-size: 1.05em; padding: 16px 12px; }
+    .stock-card .price { font-size: 1.45em; }
+    .stock-card h3 { font-size: 1em; }
     .forecast-day { min-width: 78px; font-size: 0.78em; padding: 10px 6px; }
     #weatherData { font-size: 1em; }
   }
@@ -790,17 +797,17 @@ function renderEspnScorecard(container, cfg) {
     const oppName = espnTeamName(split.opponent, "Opponent");
     const venue = split.opponent && split.opponent.homeAway === "home" ? "@ " + oppName : "vs " + oppName;
     html += `
-      <div style="text-align: right;">
+      <div style="text-align: center;">
         <p style="color: var(--muted); font-size: 0.78em; margin: 0 0 8px 0; letter-spacing: 0.04em;">NEXT GAME &bull; ${espnDateLabel(nextGame.date, true)}</p>
-        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 5px;">
+        <div style="display: flex; justify-content: center; align-items: baseline; gap: 10px; margin-bottom: 5px;">
           <span style="font-weight: 600; font-size: clamp(0.85em, 2vw, 0.98em);">${espnTeamName(split.me, fallbackName)}</span>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px;">
+        <div style="display: flex; justify-content: center; align-items: baseline; gap: 10px;">
           <span style="color: var(--muted); font-size: clamp(0.8em, 2vw, 0.92em);">${venue}</span>
         </div>
       </div>`;
   } else {
-    html += '<div style="text-align: right;"><p style="color: var(--muted); font-size: 0.85em; margin: 0;">No upcoming games scheduled</p></div>';
+    html += '<div style="text-align: center;"><p style="color: var(--muted); font-size: 0.85em; margin: 0;">No upcoming games scheduled</p></div>';
   }
 
   html += "</div>";
@@ -1052,7 +1059,7 @@ const NEWS_FEEDS = {
   },
   tech: {
     container: "techContainer",
-    url: "https://feeds.feedburner.com/techcrunch/",
+    url: "https://techcrunch.com/feed/",
     empty: "No tech news available.",
     error: "Unable to load tech news."
   },
