@@ -3,15 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDA - Personal Daily Dashboard</title>
-
+<title>JDA — Personal Daily Dashboard</title>
 <style>
   :root {
-    --bg: #16181d;
-    --text: #e8e9eb;
+    --bg: #181a20;
     --card-bg: #1f2229;
-    --card-bg-raised: #262a32;
-    --accent: #2563eb;
+    --card-bg-raised: #252830;
+    --text: #e6e7eb;
+    --accent: #1a73e8;
     --accent-light: #60a5fa;
     --border: #2e323b;
     --muted: #8b8f98;
@@ -21,13 +20,9 @@
     --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  *, *::before, *::after {
-    box-sizing: border-box;
-  }
+  *, *::before, *::after { box-sizing: border-box; }
 
-  html {
-    scroll-behavior: smooth;
-  }
+  html { scroll-behavior: smooth; }
 
   body {
     font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -40,18 +35,11 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  ::selection {
-    background: var(--accent);
-    color: #fff;
-  }
+  ::selection { background: var(--accent); color: #fff; }
 
   header {
     padding: 28px 32px;
-    background: linear-gradient(
-      135deg,
-      var(--card-bg-raised) 0%,
-      rgba(31, 34, 41, 0.0) 100%
-    );
+    background: linear-gradient(135deg, var(--card-bg-raised) 0%, rgba(31, 34, 41, 0) 100%);
     border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
@@ -63,63 +51,124 @@
     font-size: 1.75em;
     font-weight: 600;
     letter-spacing: -0.02em;
-    color: var(--accent-light);
   }
 
-  #lastUpdated {
-    font-size: 0.85em;
+  #currentDate {
     color: var(--muted);
-    font-weight: 400;
+    font-size: 0.95em;
+    margin-top: 4px;
   }
 
-  .container {
+  main {
     max-width: 1100px;
-    margin: 36px auto;
-    padding: 0 24px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
   }
 
-  .stock-box, .weather-box {
+  h2 {
+    margin: 40px 0 18px;
+    font-size: 1.35em;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  h2:first-child { margin-top: 0; }
+
+  h3 {
+    color: var(--accent-light);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin: 0 0 10px 0;
+    font-size: 1.05em;
+  }
+
+  .card {
     background: var(--card-bg);
-    padding: 24px;
-    border-radius: var(--radius);
     border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 20px;
     box-shadow: var(--shadow);
-    margin-bottom: 36px;
+  }
+
+  .stock-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .stock-card {
+    flex: 1;
+    min-width: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 18px;
+    text-align: center;
+    box-shadow: var(--shadow);
     transition: box-shadow var(--transition), transform var(--transition);
   }
 
-  .stock-box:hover, .weather-box:hover {
+  .stock-card:hover {
     box-shadow: var(--shadow-hover);
     transform: translateY(-2px);
   }
 
-  .stock-box h2, .weather-box h2 {
-    color: var(--accent-light);
-    font-weight: 500;
+  .stock-card .price {
+    font-size: 1.25em;
+    font-weight: 600;
     letter-spacing: -0.01em;
-    margin-bottom: 16px;
+    word-break: break-word;
   }
 
-  .stock-box h2, .weather-box h2 {
+  .score-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .scorecard {
+    flex: 1;
+    min-width: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: box-shadow var(--transition), transform var(--transition);
+    display: flex;
+    flex-direction: column;
+    min-height: 160px;
+  }
+
+  .scorecard:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+  }
+
+  .scorecard-title {
+    font-size: 0.8em;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--accent-light);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
   }
 
   .collapsible-header {
     background: var(--card-bg);
-    padding: 18px 20px;
-    border-radius: var(--radius);
     border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    cursor: pointer;
-    font-size: 1.15em;
-    font-weight: 500;
+    border-radius: var(--radius);
+    padding: 18px 24px;
     margin-bottom: 12px;
+    cursor: pointer;
     display: flex;
-    gap: 14px;
     align-items: center;
+    gap: 14px;
     color: var(--accent-light);
     transition: box-shadow var(--transition), transform var(--transition), background var(--transition);
   }
@@ -134,11 +183,10 @@
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 1.1em;
     color: var(--accent-light);
+    flex-shrink: 0;
   }
 
-  .chevron.rotate {
-    transform: rotate(180deg);
-  }
+  .chevron.rotate { transform: rotate(180deg); }
 
   .collapsible-content {
     overflow: hidden;
@@ -185,18 +233,24 @@
     transition: border-color var(--transition);
   }
 
-  a:hover {
-    border-bottom-color: var(--accent-light);
+  a:hover { border-bottom-color: var(--accent-light); }
+
+  #weatherData {
+    font-size: 1.1em;
+    line-height: 1.8;
+    font-weight: 500;
   }
 
   #forecast {
     display: flex;
     gap: 8px;
     margin-top: 16px;
+    flex-wrap: wrap;
   }
 
   .forecast-day {
     flex: 1;
+    min-width: 92px;
     background: var(--card-bg-raised);
     padding: 12px;
     border-radius: var(--radius);
@@ -224,16 +278,20 @@
     white-space: nowrap;
   }
 
-  #weatherData {
-    font-size: 1.1em;
-    line-height: 1.8;
-    font-weight: 500;
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
   }
 
-  h3 {
-    color: var(--accent-light);
-    font-weight: 500;
-    letter-spacing: -0.01em;
+  .live-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #f87171;
+    margin-right: 5px;
+    vertical-align: middle;
+    animation: livePulse 1.4s ease-in-out infinite;
   }
 
   @keyframes spin {
@@ -250,139 +308,27 @@
   }
 
   @media (max-width: 768px) {
-    /* Stock boxes stay side by side on mobile */
-    .container > div[style*="display: flex"]:has(.stock-box) {
-      flex-wrap: wrap;
-    }
-
-    .container > div[style*="display: flex"]:has(.stock-box) > .stock-box {
-      min-width: calc(50% - 8px);
-      flex: none;
-    }
-
-    header {
-      flex-direction: column;
-      gap: 8px;
-      text-align: center;
-      padding: 20px 16px;
-    }
-
-    header > div:first-child {
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .container {
-      padding: 0 16px;
-      margin: 20px auto;
-    }
-
-    /* Score cards: 2 per row on mobile */
-    .container > div[style*="display: flex"]:not(:has(.stock-box)) {
-      flex-wrap: wrap;
-    }
-
-    .container > div[style*="display: flex"]:not(:has(.stock-box)) > div[style*="flex: 1"] {
-      min-width: calc(50% - 8px);
-      flex: none;
-      padding: 16px 12px !important;
-    }
-    
-    .container > div[style*="display: flex"]:not(:has(.stock-box)) div[style*="font-size: 1.1em"] {
-      font-size: 0.85em !important;
-      line-height: 1.2 !important;
-      white-space: nowrap;
-    }
-
-    /* Make forecast wrap on mobile */
-    #forecast {
-      flex-wrap: wrap;
-    }
-
-    .forecast-day {
-      min-width: 45%;
-      flex: none;
-    }
-
-    /* Reduce card padding on mobile */
-    .stock-box, .weather-box {
-      padding: 12px !important;
-    }
-
-    .story {
-      padding: 16px 20px;
-    }
-
-    /* Smaller fonts on mobile */
-    h1 {
-      font-size: 1.4em;
-    }
-    
-    .stock-box h2 {
-      font-size: 0.8em !important;
-    }
-
-    .collapsible-header {
-      font-size: 1em;
-      padding: 14px 16px;
-    }
-
-    .headline {
-      font-size: 1.05em;
-    }
-
-    .forecast-day {
-      font-size: 1.2em;
-      padding: 10px;
-    }
-
-    /* Smaller score text on mobile */
-    .container > div[style*="display: flex"]:not(:has(.stock-box)) > div[style*="flex: 1"] > div[style*="font-size: 1.5em"] {
-      font-size: 0.8em !important;
-    }
+    header { padding: 20px 18px; }
+    h1 { font-size: 1.35em; }
+    main { padding: 24px 14px 48px; }
+    .stock-row { flex-wrap: wrap; }
+    .stock-card { flex: 1 1 45%; font-size: 0.85em; padding: 14px 12px; }
+    .stock-card .price { font-size: 1.05em; }
+    .stock-card h3 { font-size: 0.9em; margin-bottom: 6px; }
+    .score-row { flex-wrap: wrap; }
+    .scorecard { flex: 1 1 45%; padding: 16px 14px; min-height: 170px; }
+    .scorecard-title { font-size: 0.72em; margin-bottom: 10px; padding-bottom: 6px; }
+    .collapsible-header { padding: 14px 16px; font-size: 0.95em; }
+    .story { padding: 16px 18px; }
+    .headline { font-size: 1.02em; }
   }
 
   @media (max-width: 480px) {
-    .forecast-day {
-      min-width: calc(50% - 6px);
-      font-size: 0.7em;
-      padding: 8px;
-    }
-    
-    .stock-box h2 {
-      font-size: 0.75em !important;
-    }
-    
-    .tradingview-widget-container {
-      font-size: 0.75em !important;
-    }
-
-    #forecast {
-      gap: 12px;
-    }
-
-    .forecast-day img {
-      width: 36px;
-      height: 36px;
-    }
-
-    .forecast-day strong {
-      font-size: 0.85em;
-    }
-    
-    .stock-box h2 {
-      font-size: 0.65em !important;
-      white-space: nowrap;
-    }
-    
-    .container > div[style*="display: flex"]:not(:has(.stock-box)) div[style*="font-size: 1.1em"] {
-      font-size: 0.7em !important;
-      line-height: 1.1 !important;
-      white-space: nowrap;
-    }
+    .stock-card, .scorecard { flex: 1 1 100%; }
+    .forecast-day { min-width: 78px; font-size: 0.78em; padding: 10px 6px; }
+    #weatherData { font-size: 1em; }
   }
 </style>
-
 <script>
 function collapseAll() {
   ["worldContent", "aiContent", "techContent", "usContent", "localNewsContent", "sportsContent", "maristContent", "rowingContent", "forecastContent"].forEach(id => {
@@ -670,678 +616,488 @@ async function loadWeather() {
   }
 }
 
-async function loadAINews() {
-  const container = document.getElementById("aiNewsContainer");
-  try {
-    const response = await fetch(
-      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ftechcrunch.com%2Fcategory%2Fartificial-intelligence%2Ffeed%2F"
-    );
-    const data = await response.json();
-    if (data.items && data.items.length > 0) {
-      let html = "";
-      data.items.slice(0, 5).forEach(item => {
-        const title = item.title || "Untitled";
-        const link = item.link || "#";
-        const desc = (item.description || "").replace(/<[^>]*>/g, "").substring(0, 150);
-        const pubDate = item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-        html += `
-          <div class="story">
-            <div class="headline">${title}</div>
-            <p>${desc}...</p>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <a href="${link}" target="_blank">Read full story</a>
-              <span style="color: var(--muted); font-size: 0.8em;">${pubDate}</span>
-            </div>
-          </div>`;
-      });
-      container.innerHTML = html;
-    } else {
-      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">No news available.</p>';
-    }
-  } catch (e) {
-    container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">Unable to load AI news.</p>';
-  }
-}
-
-async function loadLocalNews() {
-  const container = document.getElementById("localNewsContainer");
-  try {
-    const response = await fetch(
-      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnews.google.com%2Frss%2Fsearch%3Fq%3DWayne%2BNJ%2Bnews%26hl%3Den-US%26gl%3DUS%26ceid%3DUS%3Aen"
-    );
-    const data = await response.json();
-    if (data.items && data.items.length > 0) {
-      let html = "";
-      data.items.slice(0, 5).forEach(item => {
-        const title = item.title || "Untitled";
-        const link = item.link || "#";
-        const desc = (item.description || "").replace(/<[^>]*>/g, "").substring(0, 150);
-        const pubDate = item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-        html += `
-          <div class="story">
-            <div class="headline">${title}</div>
-            <p>${desc}...</p>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <a href="${link}" target="_blank">Read full story</a>
-              <span style="color: var(--muted); font-size: 0.8em;">${pubDate}</span>
-            </div>
-          </div>`;
-      });
-      container.innerHTML = html;
-    } else {
-      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">No local news available.</p>';
-    }
-  } catch (e) {
-    container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">Unable to load local news.</p>';
-  }
-}
-
-async function loadSportsNews() {
-  const container = document.getElementById("sportsContainer");
-  try {
-    const response = await fetch(
-      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.espn.com%2Fespn%2Frss%2Fnews"
-    );
-    const data = await response.json();
-    if (data.items && data.items.length > 0) {
-      let html = "";
-      data.items.slice(0, 5).forEach(item => {
-        const title = item.title || "Untitled";
-        const link = item.link || "#";
-        const desc = (item.description || "").replace(/<[^>]*>/g, "").substring(0, 150);
-        const pubDate = item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-        html += `
-          <div class="story">
-            <div class="headline">${title}</div>
-            <p>${desc}...</p>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <a href="${link}" target="_blank">Read full story</a>
-              <span style="color: var(--muted); font-size: 0.8em;">${pubDate}</span>
-            </div>
-          </div>`;
-      });
-      container.innerHTML = html;
-    } else {
-      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">No sports news available.</p>';
-    }
-  } catch (e) {
-    container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">Unable to load sports news.</p>';
-  }
-}
-
-async function loadGiantsScore() {
-  const el = document.getElementById("giantsScore");
-  try {
-    const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard");
-    const data = await res.json();
-    const games = data.events || [];
-    const teamGames = games.filter(g => {
-      const comp = g.competitions && g.competitions[0];
-      if (!comp) return false;
-      return comp.competitors.some(c => c.team.abbreviation === "NYG");
-    });
-    let lastGame = teamGames.find(g => g.status && g.status.type && g.status.type.state === "post");
-    let nextGame = teamGames.find(g => g.status && g.status.type && (g.status.type.state === "pre" || g.status.type.state === "in"));
-
-    // If no next game found, look forward 21 days
-    if (!nextGame) {
-      for (let i = 0; i <= 21; i++) {
-        const d = new Date();
-        d.setDate(d.getDate() + i);
-        const dateStr = d.toISOString().split("T")[0].replace(/-/g, "");
-        const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${dateStr}`);
-        const data2 = await res2.json();
-        const futureGames = (data2.events || []).filter(g => {
-          const comp = g.competitions && g.competitions[0];
-          if (!comp) return false;
-          return comp.competitors.some(c => c.team.abbreviation === "NYG");
-        });
-        if (futureGames.length > 0) {
-          nextGame = futureGames[0];
-          break;
-        }
-      }
-    }
-
-    // If no recent game found, look back 30 days one day at a time
-    if (!lastGame) {
-      for (let i = 1; i <= 30; i++) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split("T")[0].replace(/-/g, "");
-        const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${dateStr}`);
-        const data2 = await res2.json();
-        const pastGames = (data2.events || []).filter(g => {
-          const comp = g.competitions && g.competitions[0];
-          if (!comp) return false;
-          return comp.competitors.some(c => c.team.abbreviation === "NYG") && g.status && g.status.type && g.status.type.state === "post";
-        });
-        if (pastGames.length > 0) {
-          lastGame = pastGames[0];
-          break;
-        }
-      }
-    }
-
-    let html = `
-      <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px;">
-        <img src="https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" alt="NY Giants" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
-        <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">GIANTS</span>
-      </div>
-      <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 120px; position: relative;">`;
-
-    html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 16px;">`;
-    if (lastGame) {
-      const comp = lastGame.competitions[0];
-      const home = comp.competitors[0];
-      const away = comp.competitors[1];
-      const giantsIsHome = home.team.abbreviation === "NYG";
-      const opponent = giantsIsHome ? away : home;
-      const giantsScore = giantsIsHome ? parseInt(home.score) || 0 : parseInt(away.score) || 0;
-      const oppScore = giantsIsHome ? parseInt(away.score) || 0 : parseInt(home.score) || 0;
-      const result = giantsScore > oppScore ? "W" : giantsScore < oppScore ? "L" : "T";
-      const date = lastGame.date ? new Date(lastGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
-      html += `
-        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">LAST GAME</div>
-        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
-          ${result} ${giantsScore} - ${oppScore} vs ${opponent.team.abbreviation}
-        </div>
-        <div style="font-size: 0.75em; color: var(--muted);">${date}</div>`;
-    } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); display: flex; align-items: center; justify-content: center;">No recent games</div>`;
-    }
-    html += `</div>`;
-
-    html += `<hr style="border: none; border-top: 2px solid #ffffff; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0; opacity: 0.7; width: 90%;">`;
-
-    html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding-top: 16px;">`;
-    if (nextGame) {
-      const comp = nextGame.competitions[0];
-      const home = comp.competitors[0];
-      const away = comp.competitors[1];
-      const giantsIsHome = home.team.abbreviation === "NYG";
-      const opponent = giantsIsHome ? away : home;
-      const date = nextGame.date ? new Date(nextGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
-      const time = nextGame.date ? new Date(nextGame.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "";
-      html += `
-        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">NEXT GAME</div>
-        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
-          ${giantsIsHome ? "vs" : "at"} ${opponent.team.abbreviation}
-        </div>
-        <div style="font-size: 0.75em; color: var(--muted);">${date} · ${time}</div>`;
-    } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); display: flex; align-items: center; justify-content: center;">No upcoming games</div>`;
-    }
-    html += `</div></div>`;
-
-    el.innerHTML = html;
-  } catch (e) {
-    el.innerHTML = '<p style="color: var(--muted); margin: 0;">Unable to load Giants score.</p>';
-  }
-}
-
-async function loadOriolesScore() {
-  const el = document.getElementById("oriolesScore");
-  try {
-    const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard");
-    const data = await res.json();
-    const games = data.events || [];
-    const teamGames = games.filter(g => {
-      const comp = g.competitions && g.competitions[0];
-      if (!comp) return false;
-      return comp.competitors.some(c => c.team.abbreviation === "BAL");
-    });
-    let lastGame = teamGames.find(g => g.status && g.status.type && g.status.type.state === "post");
-    let nextGame = teamGames.find(g => g.status && g.status.type && (g.status.type.state === "pre" || g.status.type.state === "in"));
-
-    // If no next game found, look forward 21 days
-    if (!nextGame) {
-      for (let i = 0; i <= 21; i++) {
-        const d = new Date();
-        d.setDate(d.getDate() + i);
-        const dateStr = d.toISOString().split("T")[0].replace(/-/g, "");
-        const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${dateStr}`);
-        const data2 = await res2.json();
-        const futureGames = (data2.events || []).filter(g => {
-          const comp = g.competitions && g.competitions[0];
-          if (!comp) return false;
-          return comp.competitors.some(c => c.team.abbreviation === "BAL");
-        });
-        if (futureGames.length > 0) {
-          nextGame = futureGames[0];
-          break;
-        }
-      }
-    }
-
-    // If no recent game found, look back 30 days one day at a time
-    if (!lastGame) {
-      for (let i = 1; i <= 30; i++) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split("T")[0].replace(/-/g, "");
-        const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${dateStr}`);
-        const data2 = await res2.json();
-        const pastGames = (data2.events || []).filter(g => {
-          const comp = g.competitions && g.competitions[0];
-          if (!comp) return false;
-          return comp.competitors.some(c => c.team.abbreviation === "BAL") && g.status && g.status.type && g.status.type.state === "post";
-        });
-        if (pastGames.length > 0) {
-          lastGame = pastGames[0];
-          break;
-        }
-      }
-    }
-
-    let html = `
-      <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px;">
-        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/bal.png" alt="Baltimore Orioles" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
-        <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">ORIOLES</span>
-      </div>
-      <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 120px; position: relative;">`;
-
-    html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">`;
-    if (lastGame) {
-      const comp = lastGame.competitions[0];
-      const home = comp.competitors[0];
-      const away = comp.competitors[1];
-      const oriolesIsHome = home.team.abbreviation === "BAL";
-      const opponent = oriolesIsHome ? away : home;
-      const oriolesScore = oriolesIsHome ? parseInt(home.score) || 0 : parseInt(away.score) || 0;
-      const oppScore = oriolesIsHome ? parseInt(away.score) || 0 : parseInt(home.score) || 0;
-      const result = oriolesScore > oppScore ? "W" : oriolesScore < oppScore ? "L" : "T";
-      const date = lastGame.date ? new Date(lastGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
-      html += `
-        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">LAST GAME</div>
-        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
-          ${result} ${oriolesScore} - ${oppScore} vs ${opponent.team.abbreviation}
-        </div>
-        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 4px;">${date}</div>`;
-    } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); display: flex; align-items: center; justify-content: center;">No recent games</div>`;
-    }
-    html += `</div>`;
-
-    html += `<hr style="border: none; border-top: 2px solid #ffffff; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0; opacity: 0.7; width: 90%;">`;
-
-    html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">`;
-    if (nextGame) {
-      const comp = nextGame.competitions[0];
-      const home = comp.competitors[0];
-      const away = comp.competitors[1];
-      const oriolesIsHome = home.team.abbreviation === "BAL";
-      const opponent = oriolesIsHome ? away : home;
-      const date = nextGame.date ? new Date(nextGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
-      const time = nextGame.date ? new Date(nextGame.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "";
-      html += `
-        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">NEXT GAME</div>
-        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
-          ${oriolesIsHome ? "vs" : "at"} ${opponent.team.abbreviation}
-        </div>
-        <div style="font-size: 0.75em; color: var(--muted);">${date} · ${time}</div>`;
-    } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); display: flex; align-items: center; justify-content: center;">No upcoming games</div>`;
-    }
-    html += `</div></div>`;
-
-    el.innerHTML = html;
-  } catch (e) {
-    el.innerHTML = '<p style="color: var(--muted); margin: 0;">Unable to load Orioles score.</p>';
-  }
-}
-
-async function loadYankeesScore() {
-  const el = document.getElementById("yankeesScore");
-  try {
-    const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard");
-    const data = await res.json();
-    const games = data.events || [];
-    const teamGames = games.filter(g => {
-      const comp = g.competitions && g.competitions[0];
-      if (!comp) return false;
-      return comp.competitors.some(c => c.team.abbreviation === "NYY");
-    });
-    let lastGame = teamGames.find(g => g.status && g.status.type && g.status.type.state === "post");
-    let nextGame = teamGames.find(g => g.status && g.status.type && (g.status.type.state === "pre" || g.status.type.state === "in"));
-
-    // If no next game found on current scoreboard, check today's date explicitly
-    if (!nextGame) {
-      const todayStr = new Date().toISOString().split("T")[0].replace(/-/g, "");
-      const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${todayStr}`);
-      const data2 = await res2.json();
-      const todayGames = (data2.events || []).filter(g => {
-        const comp = g.competitions && g.competitions[0];
-        if (!comp) return false;
-        return comp.competitors.some(c => c.team.abbreviation === "NYY");
-      });
-      if (todayGames.length > 0) {
-        nextGame = todayGames[0];
-      }
-    }
-
-    // If no recent game found, look back 30 days one day at a time
-    if (!lastGame) {
-      for (let i = 1; i <= 30; i++) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split("T")[0].replace(/-/g, "");
-        const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${dateStr}`);
-        const data2 = await res2.json();
-        const pastGames = (data2.events || []).filter(g => {
-          const comp = g.competitions && g.competitions[0];
-          if (!comp) return false;
-          return comp.competitors.some(c => c.team.abbreviation === "NYY") && g.status && g.status.type && g.status.type.state === "post";
-        });
-        if (pastGames.length > 0) {
-          lastGame = pastGames[0];
-          break;
-        }
-      }
-    }
-
-    let html = `
-      <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px;">
-        <img src="https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" alt="New York Yankees" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
-        <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">YANKEES</span>
-      </div>
-      <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 120px; position: relative;">`;
-
-    html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">`;
-    if (lastGame) {
-      const comp = lastGame.competitions[0];
-      const home = comp.competitors[0];
-      const away = comp.competitors[1];
-      const yankeesIsHome = home.team.abbreviation === "NYY";
-      const opponent = yankeesIsHome ? away : home;
-      const yankeesScore = yankeesIsHome ? parseInt(home.score) || 0 : parseInt(away.score) || 0;
-      const oppScore = yankeesIsHome ? parseInt(away.score) || 0 : parseInt(home.score) || 0;
-      const result = yankeesScore > oppScore ? "W" : yankeesScore < oppScore ? "L" : "T";
-      const date = lastGame.date ? new Date(lastGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
-      html += `
-        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">LAST GAME</div>
-        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
-          ${result} ${yankeesScore} - ${oppScore} vs ${opponent.team.abbreviation}
-        </div>
-        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 4px;">${date}</div>`;
-    } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); display: flex; align-items: center; justify-content: center;">No recent games</div>`;
-    }
-    html += `</div>`;
-
-    html += `<hr style="border: none; border-top: 2px solid #ffffff; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0; opacity: 0.7; width: 90%;">`;
-
-    html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">`;
-    if (nextGame) {
-      const comp = nextGame.competitions[0];
-      const home = comp.competitors[0];
-      const away = comp.competitors[1];
-      const yankeesIsHome = home.team.abbreviation === "NYY";
-      const opponent = yankeesIsHome ? away : home;
-      const date = nextGame.date ? new Date(nextGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
-      const time = nextGame.date ? new Date(nextGame.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "";
-      html += `
-        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">NEXT GAME</div>
-        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
-          ${yankeesIsHome ? "vs" : "at"} ${opponent.team.abbreviation}
-        </div>
-        <div style="font-size: 0.75em; color: var(--muted);">${date} · ${time}</div>`;
-    } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); display: flex; align-items: center; justify-content: center;">No upcoming games</div>`;
-    }
-    html += `</div></div>`;
-
-    el.innerHTML = html;
-  } catch (e) {
-    el.innerHTML = '<p style="color: var(--muted); margin: 0;">Unable to load Yankees score.</p>';
-  }
-}
-
-async function loadKnicksScore() {
-  const el = document.getElementById("knicksScore");
-  try {
-    const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard");
-    const data = await res.json();
-    const games = data.events || [];
-    const teamGames = games.filter(g => {
-      const comp = g.competitions && g.competitions[0];
-      if (!comp) return false;
-      return comp.competitors.some(c => c.team.abbreviation === "NYK");
-    });
-    let lastGame = teamGames.find(g => g.status && g.status.type && g.status.type.state === "post");
-    let nextGame = teamGames.find(g => g.status && g.status.type && (g.status.type.state === "pre" || g.status.type.state === "in"));
-
-    // If no next game found, look forward 21 days
-    if (!nextGame) {
-      for (let i = 0; i <= 21; i++) {
-        const d = new Date();
-        d.setDate(d.getDate() + i);
-        const dateStr = d.toISOString().split("T")[0].replace(/-/g, "");
-        const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${dateStr}`);
-        const data2 = await res2.json();
-        const futureGames = (data2.events || []).filter(g => {
-          const comp = g.competitions && g.competitions[0];
-          if (!comp) return false;
-          return comp.competitors.some(c => c.team.abbreviation === "NYK");
-        });
-        if (futureGames.length > 0) {
-          nextGame = futureGames[0];
-          break;
-        }
-      }
-    }
-
-    // If no recent game found, look back 30 days one day at a time
-    if (!lastGame) {
-      for (let i = 1; i <= 30; i++) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split("T")[0].replace(/-/g, "");
-        const res2 = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${dateStr}`);
-        const data2 = await res2.json();
-        const pastGames = (data2.events || []).filter(g => {
-          const comp = g.competitions && g.competitions[0];
-          if (!comp) return false;
-          return comp.competitors.some(c => c.team.abbreviation === "NYK") && g.status && g.status.type && g.status.type.state === "post";
-        });
-        if (pastGames.length > 0) {
-          lastGame = pastGames[0];
-          break;
-        }
-      }
-    }
-
-    let html = `
-      <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px;">
-        <img src="https://a.espncdn.com/i/teamlogos/nba/500/nyk.png" alt="New York Knicks" style="width: 28px; height: 28px; background: #fff; border-radius: 6px; padding: 4px;">
-        <span style="font-size: 0.85em; color: var(--muted); letter-spacing: 0.05em;">KNICKS</span>
-      </div>
-      <div style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 120px; position: relative;">`;
-
-    html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">`;
-    if (lastGame) {
-      const comp = lastGame.competitions[0];
-      const home = comp.competitors[0];
-      const away = comp.competitors[1];
-      const knicksIsHome = home.team.abbreviation === "NYK";
-      const opponent = knicksIsHome ? away : home;
-      const knicksScore = knicksIsHome ? parseInt(home.score) || 0 : parseInt(away.score) || 0;
-      const oppScore = knicksIsHome ? parseInt(away.score) || 0 : parseInt(home.score) || 0;
-      const result = knicksScore > oppScore ? "W" : knicksScore < oppScore ? "L" : "T";
-      const date = lastGame.date ? new Date(lastGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
-      html += `
-        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">LAST GAME</div>
-        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
-          ${result} ${knicksScore} - ${oppScore} vs ${opponent.team.abbreviation}
-        </div>
-        <div style="font-size: 0.75em; color: var(--muted); margin-bottom: 4px;">${date}</div>`;
-    } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); display: flex; align-items: center; justify-content: center;">No recent games</div>`;
-    }
-    html += `</div>`;
-
-    html += `<hr style="border: none; border-top: 2px solid #ffffff; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0; opacity: 0.7; width: 90%;">`;
-
-    html += `<div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">`;
-    if (nextGame) {
-      const comp = nextGame.competitions[0];
-      const home = comp.competitors[0];
-      const away = comp.competitors[1];
-      const knicksIsHome = home.team.abbreviation === "NYK";
-      const opponent = knicksIsHome ? away : home;
-      const date = nextGame.date ? new Date(nextGame.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
-      const time = nextGame.date ? new Date(nextGame.date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "";
-      html += `
-        <div style="font-size: 0.8em; color: var(--muted); margin-bottom: 2px;">NEXT GAME</div>
-        <div style="font-size: 1.1em; font-weight: 600; color: var(--text);">
-          ${knicksIsHome ? "vs" : "at"} ${opponent.team.abbreviation}
-        </div>
-        <div style="font-size: 0.75em; color: var(--muted);">${date} · ${time}</div>`;
-    } else {
-      html += `<div style="font-size: 0.85em; color: var(--muted); display: flex; align-items: center; justify-content: center;">No upcoming games</div>`;
-    }
-    html += `</div></div>`;
-
-    el.innerHTML = html;
-  } catch (e) {
-    el.innerHTML = '<p style="color: var(--muted); margin: 0;">Unable to load Knicks score.</p>';
-  }
-}
-
-async function loadWorldNews() {
-  const container = document.getElementById("worldContainer");
-  try {
-    const response = await fetch(
-      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ffeeds.bbci.co.uk%2Fnews%2Fworld%2Frss.xml"
-    );
-    const data = await response.json();
-    if (data.items && data.items.length > 0) {
-      let html = "";
-      data.items.slice(0, 5).forEach(item => {
-        const title = item.title || "Untitled";
-        const link = item.link || "#";
-        const desc = (item.description || "").replace(/<[^>]*>/g, "").substring(0, 150);
-        const pubDate = item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-        html += `
-          <div class="story">
-            <div class="headline">${title}</div>
-            <p>${desc}...</p>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <a href="${link}" target="_blank">Read full story</a>
-              <span style="color: var(--muted); font-size: 0.8em;">${pubDate}</span>
-            </div>
-          </div>`;
-      });
-      container.innerHTML = html;
-    } else {
-      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">No world news available.</p>';
-    }
-  } catch (e) {
-    container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">Unable to load world news.</p>';
-  }
-}
-
-async function loadUSNews() {
-  const container = document.getElementById("usContainer");
-  try {
-    const response = await fetch(
-      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ffeeds.npr.org%2F1001%2Frss.xml"
-    );
-    const data = await response.json();
-    if (data.items && data.items.length > 0) {
-      let html = "";
-      data.items.slice(0, 5).forEach(item => {
-        const title = item.title || "Untitled";
-        const link = item.link || "#";
-        const desc = (item.description || "").replace(/<[^>]*>/g, "").substring(0, 150);
-        const pubDate = item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-        html += `
-          <div class="story">
-            <div class="headline">${title}</div>
-            <p>${desc}...</p>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <a href="${link}" target="_blank">Read full story</a>
-              <span style="color: var(--muted); font-size: 0.8em;">${pubDate}</span>
-            </div>
-          </div>`;
-      });
-      container.innerHTML = html;
-    } else {
-      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">No US news available.</p>';
-    }
-  } catch (e) {
-    container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">Unable to load US news.</p>';
-  }
-}
 
 
-async function loadTechNews() {
-  const container = document.getElementById("techContainer");
-  try {
-    const response = await fetch(
-      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ffeeds.feedburner.com%2Ftechcrunch%2F"
-    );
-    const data = await response.json();
-    if (data.items && data.items.length > 0) {
-      let html = "";
-      data.items.slice(0, 5).forEach(item => {
-        const title = item.title || "Untitled";
-        const link = item.link || "#";
-        const desc = (item.description || "").replace(/<[^>]*>/g, "").substring(0, 150);
-        const pubDate = item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-        html += `
-          <div class="story">
-            <div class="headline">${title}</div>
-            <p>${desc}...</p>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <a href="${link}" target="_blank">Read full story</a>
-              <span style="color: var(--muted); font-size: 0.8em;">${pubDate}</span>
-            </div>
-          </div>`;
-      });
-      container.innerHTML = html;
-    } else {
-      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">No tech news available.</p>';
-    }
-  } catch (e) {
-    container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">Unable to load tech news.</p>';
-  }
-}
 
-async function loadMaristNews() {
-  const container = document.getElementById("maristContainer");
-  try {
-    const response = await fetch(
-      "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnews.google.com%2Frss%2Fsearch%3Fq%3DMarist%2BUniversity%26hl%3Den-US%26gl%3DUS%26ceid%3DUS%3Aen"
-    );
-    const data = await response.json();
-    if (data.items && data.items.length > 0) {
-      let html = "";
-      data.items.slice(0, 5).forEach(item => {
-        const title = item.title || "Untitled";
-        const link = item.link || "#";
-        const desc = (item.description || "").replace(/<[^>]*>/g, "").substring(0, 150);
-        const pubDate = item.pubDate ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
-        html += `
-          <div class="story">
-            <div class="headline">${title}</div>
-            <p>${desc}...</p>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <a href="${link}" target="_blank">Read full story</a>
-              <span style="color: var(--muted); font-size: 0.8em;">${pubDate}</span>
-            </div>
-          </div>`;
-      });
-      container.innerHTML = html;
-    } else {
-      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">No Marist news available.</p>';
-    }
-  } catch (e) {
-    container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px 0;">Unable to load Marist news.</p>';
-  }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 history.scrollRestoration = "manual";
+// Identifies the team of interest inside an ESPN event regardless of whether the
+// API lists it first or second, so scores and W/L/T always belong to our team.
+function espnMakeMatcher(cfg) {
+  const id = String(cfg.teamId);
+  const abbrs = (cfg.abbrs || []).map(a => a.toUpperCase());
+  const nameRe = cfg.nameRe ? new RegExp(cfg.nameRe, "i") : null;
+  return function (team) {
+    if (!team) return false;
+    if (String(team.id) === id) return true;
+    if (abbrs.includes((team.abbreviation || "").toUpperCase())) return true;
+    if (nameRe) return nameRe.test(team.displayName || team.shortDisplayName || "");
+    return false;
+  };
+}
+
+// "in" is a game running right now. Completed seasons are served without any
+// status block at all, so a past game that already carries a final score counts
+// as finished; anything else is still to come.
+function espnGameState(event, now) {
+  const type = event.status && event.status.type;
+  if (type) {
+    if (type.state === "in") return "in";
+    if (type.completed === true || type.state === "post") return "post";
+    if (type.state === "pre") return "pre";
+  }
+  const competitors = (event.competitions && event.competitions[0] && event.competitions[0].competitors) || [];
+  const hasScore = competitors.some(c => c.score && (c.score.value !== undefined && c.score.value !== null && c.score.value !== ""));
+  if (new Date(event.date).getTime() < now) return hasScore ? "post" : "pre";
+  return "pre";
+}
+
+// Pulls the game in a given state, ordered by date. "desc" is the most recent,
+// "asc" the soonest. Games stuck in the past with no result (postponements) are
+// excluded from "pre" so they cannot masquerade as an upcoming fixture.
+function espnPickByDate(events, state, direction, now) {
+  const list = (events || [])
+    .filter(e => espnGameState(e, now) === state)
+    .filter(e => state !== "pre" || new Date(e.date).getTime() > now - 36 * 60 * 60 * 1000)
+    .sort((a, b) => (direction === "desc" ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date)));
+  return list[0] || null;
+}
+
+// Period and clock for a running game, e.g. "3rd 5:00" or "Top 6th".
+function espnLiveDetail(event) {
+  const type = event.status && event.status.type;
+  if (!type) return "In progress";
+  return type.detail || type.shortDetail || type.description || "In progress";
+}
+
+function espnScoreOf(competitor) {
+  if (!competitor || !competitor.score) return "0";
+  const v = competitor.score.value !== undefined ? competitor.score.value : competitor.score.displayValue;
+  return v === undefined || v === null || v === "" ? "0" : String(v);
+}
+
+function espnResultLabel(teamScore, oppScore) {
+  const a = parseInt(teamScore, 10);
+  const b = parseInt(oppScore, 10);
+  if (isNaN(a) || isNaN(b)) return "";
+  if (a > b) return "W";
+  if (a < b) return "L";
+  return "T";
+}
+
+function espnResultColor(label) {
+  if (label === "W") return "#4ade80";
+  if (label === "L") return "#f87171";
+  if (label === "T") return "#fbbf24";
+  return "var(--muted)";
+}
+
+// Returns { me, opponent } for the tracked team, or null if this event is a
+// different team's game (can happen in broad schedule responses).
+function espnSplitCompetitors(event, isMine) {
+  const competitors = (event.competitions && event.competitions[0] && event.competitions[0].competitors) || [];
+  const me = competitors.find(c => isMine(c.team));
+  if (!me) return null;
+  return { me: me, opponent: competitors.find(c => !isMine(c.team)) };
+}
+
+function espnTeamName(competitor, fallback) {
+  const t = competitor && competitor.team;
+  return (t && (t.shortDisplayName || t.displayName || t.name)) || fallback || "Team";
+}
+
+function espnDateLabel(date, withTime) {
+  const opts = { month: "short", day: "numeric" };
+  if (withTime) { opts.hour = "numeric"; opts.minute = "2-digit"; }
+  return new Date(date).toLocaleDateString("en-US", opts);
+}
+
+// Shared renderer: builds the "last game / next game" card body used by every
+// scorecard. A game in progress is the most recent game of all, so its live
+// score stands in for the last final.
+function renderEspnScorecard(container, cfg) {
+  const isMine = cfg.isMine;
+  const fallbackName = cfg.teamName;
+  const liveGame = cfg.liveGame || null;
+  const featured = liveGame || cfg.lastGame || null;
+  const nextGame = cfg.nextGame || null;
+
+  if (!featured && !nextGame) {
+    container.innerHTML = '<p style="color: var(--muted); margin: 0;">No game data available</p>';
+    return;
+  }
+
+  let html = '<div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 16px;">';
+
+  if (featured) {
+    const split = espnSplitCompetitors(featured, isMine);
+    const myScore = espnScoreOf(split.me);
+    const oppScore = espnScoreOf(split.opponent);
+    const label = espnResultLabel(myScore, oppScore);
+
+    const headline = liveGame
+      ? '<span class="live-dot"></span> LIVE'
+      : "LAST GAME &bull; " + espnDateLabel(featured.date, false);
+
+    // A win/loss verdict would be wrong mid-game, so the running score stands
+    // on its own and the period and clock go where the verdict would sit.
+    const verdict = liveGame
+      ? '<p style="margin: 8px 0 0 0; font-weight: 700; font-size: clamp(0.95em, 2.3vw, 1.1em); color: #f87171; white-space: nowrap;">' +
+        espnLiveDetail(featured) + "</p>"
+      : (label
+        ? '<p style="margin: 8px 0 0 0; font-weight: 700; font-size: clamp(1em, 2.5vw, 1.2em); color: ' +
+          espnResultColor(label) + ';">' + label + "</p>"
+        : "");
+
+    html += `
+      <div>
+        <p style="color: ${liveGame ? "#f87171" : "var(--muted)"}; font-size: 0.78em; margin: 0 0 8px 0; letter-spacing: 0.04em;">${headline}</p>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 5px;">
+          <span style="font-weight: 600; font-size: clamp(0.85em, 2vw, 0.98em); text-align: left;">${espnTeamName(split.me, fallbackName)}</span>
+          <span style="font-size: clamp(0.95em, 2.2vw, 1.15em); font-weight: 700;">${myScore}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px;">
+          <span style="color: var(--muted); font-size: clamp(0.8em, 2vw, 0.92em); text-align: left;">${espnTeamName(split.opponent, "Opponent")}</span>
+          <span style="color: var(--muted); font-size: clamp(0.8em, 2vw, 0.92em);">${oppScore}</span>
+        </div>
+        ${verdict}
+      </div>`;
+  } else {
+    html += '<div><p style="color: var(--muted); font-size: 0.85em; margin: 0;">No recent games</p></div>';
+  }
+
+  if (nextGame) {
+    const split = espnSplitCompetitors(nextGame, isMine);
+    const oppName = espnTeamName(split.opponent, "Opponent");
+    const venue = split.opponent && split.opponent.homeAway === "home" ? "@ " + oppName : "vs " + oppName;
+    html += `
+      <div style="text-align: right;">
+        <p style="color: var(--muted); font-size: 0.78em; margin: 0 0 8px 0; letter-spacing: 0.04em;">NEXT GAME &bull; ${espnDateLabel(nextGame.date, true)}</p>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 5px;">
+          <span style="font-weight: 600; font-size: clamp(0.85em, 2vw, 0.98em);">${espnTeamName(split.me, fallbackName)}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px;">
+          <span style="color: var(--muted); font-size: clamp(0.8em, 2vw, 0.92em);">${venue}</span>
+        </div>
+      </div>`;
+  } else {
+    html += '<div style="text-align: right;"><p style="color: var(--muted); font-size: 0.85em; margin: 0;">No upcoming games scheduled</p></div>';
+  }
+
+  html += "</div>";
+  container.innerHTML = html;
+}
+
+async function fetchEspnUrl(url) {
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data.events) ? data.events : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+// ESPN drops preseason and postseason unless a season type is asked for by name,
+// and the implicit default follows whatever phase of the season it currently is.
+// So every season type is requested explicitly rather than relied upon.
+const SEASON_TYPES_NEWEST_FIRST = [3, 2, 1]; // postseason, regular season, preseason
+const SEASON_TYPES_OLDEST_FIRST = [1, 2, 3]; // preseason, regular season, postseason
+
+// A season label is only the newest one worth looking at while that season is
+// still running. Once it has finished, the following season's schedule takes
+// over - even where its first game is months away, as with college basketball
+// through the spring. Ordering the labels wrongly makes those games invisible.
+function espnSeasonLabels(now, seasonEndsAfterMonth) {
+  const y = now.getFullYear();
+  return now.getMonth() >= seasonEndsAfterMonth
+    ? [y + 1, y, y - 1]
+    : [y, y + 1, y - 1];
+}
+
+const ESPN_TEAMS = {
+  giants: {
+    teamName: "Giants",
+    path: "football/nfl/teams/19",
+    isMine: espnMakeMatcher({ teamId: "19", abbrs: ["NYG"], nameRe: "giants" }),
+    // An NFL season is labelled by the year it starts in and runs Sep-Feb.
+    seasonLabels: now => espnSeasonLabels(now, 2)
+  },
+  knicks: {
+    teamName: "Knicks",
+    path: "basketball/nba/teams/18",
+    isMine: espnMakeMatcher({ teamId: "18", abbrs: ["NY", "NYK"], nameRe: "knicks" }),
+    // An NBA season is labelled by the year it ends in and runs Oct-Jun.
+    seasonLabels: now => espnSeasonLabels(now, 6)
+  },
+  yankees: {
+    teamName: "Yankees",
+    path: "baseball/mlb/teams/10",
+    isMine: espnMakeMatcher({ teamId: "10", abbrs: ["NYY"], nameRe: "yankees" }),
+    // An MLB season is labelled by the year it starts in and runs Feb-Nov.
+    seasonLabels: now => espnSeasonLabels(now, 10)
+  },
+  marist: {
+    teamName: "Marist",
+    path: "basketball/mens-college-basketball/teams/2368",
+    isMine: espnMakeMatcher({ teamId: "2368", abbrs: ["MRST"], nameRe: "marist" }),
+    // A college season is labelled by the year it ends in and runs Nov-Mar.
+    seasonLabels: now => espnSeasonLabels(now, 3)
+  }
+};
+
+// Candidate schedule requests ordered strictly newest game first: season labels
+// descend, and within a label postseason precedes regular season precedes
+// preseason. Walking this grid front to back therefore meets progressively older
+// games, which is what lets both searches stop as soon as they have an answer.
+function espnScheduleGrid(cfg, now) {
+  const grid = [];
+  cfg.seasonLabels(now).forEach((season, labelIndex) => {
+    SEASON_TYPES_NEWEST_FIRST.forEach(seasontype => {
+      grid.push({ season: season, seasontype: seasontype, labelIndex: labelIndex });
+    });
+  });
+  return grid;
+}
+
+async function espnLoadGames(cfg, nowDate) {
+  const now = nowDate.getTime();
+  const cache = new Map();
+  const grid = espnScheduleGrid(cfg, nowDate);
+  const buckets = new Map();
+
+  const fetchCell = async index => {
+    if (buckets.has(index)) return buckets.get(index);
+    const cell = grid[index];
+    const url =
+      "https://site.api.espn.com/apis/site/v2/sports/" + cfg.path +
+      "/schedule?season=" + cell.season +
+      "&seasontype=" + cell.seasontype +
+      "&limit=300";
+    if (!cache.has(url)) cache.set(url, fetchEspnUrl(url));
+    const events = await cache.get(url);
+    const mine = events.filter(e => espnSplitCompetitors(e, cfg.isMine) !== null);
+    buckets.set(index, mine);
+    return mine;
+  };
+
+  // Most recent completed game: the first cell holding a finished game holds the
+  // latest one, so the walk stops there and never touches older seasons.
+  let lastIndex = -1;
+  for (let i = 0; i < grid.length; i++) {
+    const mine = await fetchCell(i);
+    if (mine.some(e => espnGameState(e, now) === "post")) {
+      lastIndex = i;
+      break;
+    }
+  }
+  const lastGame = lastIndex === -1
+    ? null
+    : espnPickByDate(buckets.get(lastIndex), "post", "desc", now);
+
+  // Soonest upcoming game: it cannot predate the last completed game, so cells at
+  // or past that position are skipped. Within a reachable season label the search
+  // runs oldest type first, because a preseason game tips off before the
+  // regular-season opener.
+  let nextGame = null;
+  if (lastIndex === -1) {
+    for (const seasontype of SEASON_TYPES_OLDEST_FIRST) {
+      const i = grid.findIndex(c => c.labelIndex === 0 && c.seasontype === seasontype);
+      if (i === -1) continue;
+      const found = espnPickByDate(await fetchCell(i), "pre", "asc", now);
+      if (found) { nextGame = found; break; }
+    }
+  } else {
+    const lastCell = grid[lastIndex];
+    const lastTypePos = SEASON_TYPES_NEWEST_FIRST.indexOf(lastCell.seasontype);
+    for (let labelIndex = 0; labelIndex <= lastCell.labelIndex && !nextGame; labelIndex++) {
+      for (let p = 0; p < SEASON_TYPES_OLDEST_FIRST.length && !nextGame; p++) {
+        const seasontype = SEASON_TYPES_OLDEST_FIRST[p];
+        // Inside the last game's own label, only types from that one onwards can
+        // still be ahead of it.
+        if (labelIndex === lastCell.labelIndex &&
+            SEASON_TYPES_NEWEST_FIRST.indexOf(seasontype) > lastTypePos) continue;
+        const i = grid.findIndex(c => c.labelIndex === labelIndex && c.seasontype === seasontype);
+        if (i === -1) continue;
+        const found = espnPickByDate(await fetchCell(i), "pre", "asc", now);
+        if (found) nextGame = found;
+      }
+    }
+  }
+
+  // An in-progress game is by definition the most recent one, so it is always
+  // among the cells the first walk already loaded.
+  let liveGame = null;
+  for (const events of buckets.values()) {
+    const found = espnPickByDate(events, "in", "desc", now);
+    if (found && (!liveGame || new Date(found.date) > new Date(liveGame.date))) liveGame = found;
+  }
+
+  return { lastGame: lastGame, nextGame: nextGame, liveGame: liveGame };
+}
+
+function espnLoadScorecard(containerId, teamKey) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const cfg = ESPN_TEAMS[teamKey];
+  return espnLoadGames(cfg, new Date())
+    .then(result => {
+      renderEspnScorecard(container, {
+        isMine: cfg.isMine,
+        teamName: cfg.teamName,
+        lastGame: result.lastGame,
+        nextGame: result.nextGame,
+        liveGame: result.liveGame
+      });
+    })
+    .catch(() => {
+      container.innerHTML = '<p style="color: var(--muted); margin: 0;">Unable to load score</p>';
+    });
+}
+
+function loadGiantsScore() {
+  return espnLoadScorecard("giantsScore", "giants");
+}
+
+function loadKnicksScore() {
+  return espnLoadScorecard("knicksScore", "knicks");
+}
+
+function loadYankeesScore() {
+  return espnLoadScorecard("yankeesScore", "yankees");
+}
+
+function loadMaristMbbScore() {
+  return espnLoadScorecard("maristMbbScore", "marist");
+}
+
+// Shared news renderer. Each feed goes through rss2json with a short retry so a
+// single flaky request does not leave a section permanently empty.
+async function loadNewsFeed(container, feedUrl, emptyMessage, errorMessage, limit) {
+  const max = limit || 5;
+  const apiUrl = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(feedUrl);
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const response = await fetch(apiUrl, { cache: "no-store" });
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      const data = await response.json();
+      const items = (data && data.items && data.items.length)
+        ? data.items
+        : ((data && data.channel && data.channel.item) ? data.channel.item : null);
+      if (!items || items.length === 0) throw new Error("no items");
+
+      let html = "";
+      items.slice(0, max).forEach(item => {
+        const title = item.title || "Untitled";
+        const link = item.link || "#";
+        const desc = (item.description || item.content || "").replace(/<[^>]*>/g, "").trim().substring(0, 150);
+        const pubDate = item.pubDate
+          ? new Date(item.pubDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+          : "";
+        html += `
+          <div class="story">
+            <div class="headline">${title}</div>
+            <p>${desc}${desc.length >= 150 ? "..." : ""}</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+              <a href="${link}" target="_blank" rel="noopener noreferrer">Read full story</a>
+              <span style="color: var(--muted); font-size: 0.8em; white-space: nowrap;">${pubDate}</span>
+            </div>
+          </div>`;
+      });
+      container.innerHTML = html;
+      return true;
+    } catch (e) {
+      if (attempt === 0) await new Promise(r => setTimeout(r, 900));
+    }
+  }
+
+  container.innerHTML =
+    '<p style="color: var(--muted); text-align: center; padding: 20px 0;">' + errorMessage + "</p>";
+  return false;
+}
+
+const NEWS_FEEDS = {
+  world: {
+    container: "worldContainer",
+    url: "https://feeds.bbci.co.uk/news/world/rss.xml",
+    empty: "No world news available.",
+    error: "Unable to load world news."
+  },
+  us: {
+    container: "usContainer",
+    url: "https://feeds.npr.org/1001/rss.xml",
+    empty: "No US news available.",
+    error: "Unable to load US news."
+  },
+  tech: {
+    container: "techContainer",
+    url: "https://feeds.feedburner.com/techcrunch/",
+    empty: "No tech news available.",
+    error: "Unable to load tech news."
+  },
+  ai: {
+    container: "aiNewsContainer",
+    url: "https://techcrunch.com/category/artificial-intelligence/feed/",
+    empty: "No AI news available.",
+    error: "Unable to load AI news."
+  },
+  local: {
+    container: "localNewsContainer",
+    url: "https://news.google.com/rss/search?q=Wayne+New+Jersey&hl=en-US&gl=US&ceid=US:en",
+    empty: "No local news available.",
+    error: "Unable to load local news."
+  },
+  sports: {
+    container: "sportsContainer",
+    url: "https://www.espn.com/espn/rss/news",
+    empty: "No sports news available.",
+    error: "Unable to load sports news."
+  },
+  marist: {
+    container: "maristContainer",
+    url: "https://news.google.com/rss/search?q=Marist+University&hl=en-US&gl=US&ceid=US:en",
+    empty: "No Marist news available.",
+    error: "Unable to load Marist news."
+  }
+};
+
+function loadSection(key) {
+  const feed = NEWS_FEEDS[key];
+  if (!feed) return;
+  const container = document.getElementById(feed.container);
+  if (!container) return;
+  return loadNewsFeed(container, feed.url, feed.empty, feed.error, 5);
+}
+
+function loadWorldNews() { return loadSection("world"); }
+function loadUSNews() { return loadSection("us"); }
+function loadTechNews() { return loadSection("tech"); }
+function loadAINews() { return loadSection("ai"); }
+function loadLocalNews() { return loadSection("local"); }
+function loadSportsNews() { return loadSection("sports"); }
+function loadMaristNews() { return loadSection("marist"); }
+
 window.onload = function() {
   window.scrollTo(0, 0);
   loadWeather();
@@ -1354,49 +1110,185 @@ window.onload = function() {
   loadMaristNews();
   loadGiantsScore();
   loadKnicksScore();
-  loadOriolesScore();
   loadYankeesScore();
+  loadMaristMbbScore();
   loadStockPrices();
   document.getElementById("currentDate").innerText = formatDateWithWeekday(
     new Date().toISOString().split("T")[0]
   );
 };
 
-async function loadStockPrices() {
-  const stocks = [
-    { symbol: "BAC", element: "bacPrice" },
-    { symbol: "VGT", element: "vgtPrice" },
-    { symbol: "^DJI", element: "djiPrice" }
-  ];
-  for (let stock of stocks) {
-    try {
-      const url = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${stock.symbol}`)}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (data.chart && data.chart.result && data.chart.result[0]) {
-        const meta = data.chart.result[0].meta;
-        const price = meta.regularMarketPrice;
-        const change = meta.regularMarketChange || 0;
-        const pct = meta.regularMarketChangePercent || 0;
-        const el = document.getElementById(stock.element);
-        if (el && price) {
-          const changeStr = change >= 0 ? "+" : "";
-          el.innerHTML = `${price.toFixed(2)} <span style="color: ${change >= 0 ? '#4ade80' : '#f87171'}; font-size: 0.75em;">${changeStr}${change.toFixed(2)} (${changeStr}${pct.toFixed(2)}%)</span>`;
-        }
-      }
-    } catch (e) {
-      const el = document.getElementById(stock.element);
-      if (el) el.innerHTML = "N/A";
+// Market data. Alpha Vantage reports a true prior-close change but throttles
+// hard, so it is tried first (spaced out) with Polygon and CNBC as fallbacks.
+// The Dow Jones comes from CNBC, which serves the real DJIA index value.
+const AV_API_KEY = "VQ5X5GX7QB9TB4YO";
+const POLYGON_API_KEY = "AGcrsSznq7R04tprFXLxVMDRlURzRkmc";
+
+const MARKET_WIDGETS = [
+  { element: "bacPrice", symbol: "BAC", label: "BAC" },
+  { element: "vgtPrice", symbol: "VGT", label: "VGT" },
+  { element: "djiPrice", symbol: ".DJI", label: "Dow Jones", primary: "cnbc", isIndex: true }
+];
+
+function renderMarketQuote(el, quote, isIndex) {
+  if (!quote || !isFinite(quote.price)) return false;
+  const up = quote.change >= 0;
+  const sign = up ? "+" : "";
+  const color = up ? "#4ade80" : "#f87171";
+  const change = isFinite(quote.change) ? quote.change : 0;
+  const pct = isFinite(quote.pct) ? quote.pct : 0;
+  // Index values run to five digits, so group the thousands for readability.
+  const priceText = (isIndex
+    ? quote.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : quote.price.toFixed(2));
+  const changeText = (isIndex
+    ? change.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : change.toFixed(2));
+  el.innerHTML =
+    priceText +
+    ' <span style="color: ' + color + '; font-size: 0.78em; white-space: nowrap;">' +
+    sign + changeText + " (" + sign + pct.toFixed(2) + "%)</span>";
+  return true;
+}
+
+// CNBC returns every numeric field as a comma-formatted string, e.g. "51,067.52".
+function parseCnbcNumber(value) {
+  if (value === undefined || value === null || value === "") return NaN;
+  return parseFloat(String(value).replace(/[$,%\s]/g, ""));
+}
+
+async function fetchCnbcQuote(symbol) {
+  try {
+    const url =
+      "https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol?symbols=" +
+      encodeURIComponent(symbol) +
+      "&requestMethod=itv&noform=1&partnerId=2&fund=1&exthrs=1&output=json";
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const quotes = data && data.FormattedQuoteResult && data.FormattedQuoteResult.FormattedQuote;
+    const q = Array.isArray(quotes) ? quotes[0] : null;
+    if (!q || !q.last) return null;
+
+    let change = parseCnbcNumber(q.change);
+    let pct = parseCnbcNumber(q.change_pct);
+    // Derive either value if the API omitted it.
+    if (!isFinite(change)) {
+      const prev = parseCnbcNumber(q.previous_day_closing);
+      if (isFinite(prev) && prev !== 0) change = q.last ? parseCnbcNumber(q.last) - prev : NaN;
     }
+    if (!isFinite(pct) && isFinite(change)) {
+      const prev = parseCnbcNumber(q.previous_day_closing);
+      if (prev) pct = (change / prev) * 100;
+    }
+
+    return {
+      price: parseCnbcNumber(q.last),
+      change: isFinite(change) ? change : 0,
+      pct: isFinite(pct) ? pct : 0,
+      asOf: q.last_timedate || "",
+      name: q.name || ""
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+async function fetchAlphaQuote(symbol) {
+  try {
+    const url =
+      "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=" +
+      encodeURIComponent(symbol) + "&apikey=" + AV_API_KEY;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return null;
+    const text = await res.text();
+    const cleaned = text.replace(/```json\n?|```/g, "").trim();
+    const data = JSON.parse(cleaned);
+    if (data.Information || data.Note) return null;
+    const q = data["Global Quote"];
+    if (!q || !q["05. price"]) return null;
+    const pctRaw = q["10. change percent"] || "0";
+    return {
+      price: parseFloat(q["05. price"]),
+      change: parseFloat(q["09. change"] || "0"),
+      pct: parseFloat(String(pctRaw).replace("%", ""))
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+async function fetchPolygonQuote(symbol) {
+  try {
+    const url =
+      "https://api.polygon.io/v2/aggs/ticker/" + encodeURIComponent(symbol) +
+      "/prev?adjusted=true&apiKey=" + POLYGON_API_KEY;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const bar = data.results && data.results[0];
+    if (!bar || bar.c === undefined) return null;
+    // The free tier returns open/close only, so derive the move from the session open.
+    const change = bar.o !== undefined ? bar.c - bar.o : 0;
+    const pct = bar.o ? (change / bar.o) * 100 : 0;
+    return { price: bar.c, change: change, pct: pct };
+  } catch (e) {
+    return null;
+  }
+}
+
+// Source order per widget: an explicit `primary` wins, otherwise Alpha Vantage
+// is tried first and the others act as fallbacks.
+const MARKET_SOURCES = {
+  alpha: fetchAlphaQuote,
+  polygon: fetchPolygonQuote,
+  cnbc: fetchCnbcQuote
+};
+
+function marketSourceOrder(widget) {
+  const order = widget.primary
+    ? [widget.primary, "alpha", "polygon", "cnbc"]
+    : ["alpha", "polygon", "cnbc"];
+  return order.filter((name, i) => order.indexOf(name) === i);
+}
+
+async function loadStockPrices() {
+  for (let i = 0; i < MARKET_WIDGETS.length; i++) {
+    const widget = MARKET_WIDGETS[i];
+    const el = document.getElementById(widget.element);
+    if (!el) continue;
+    el.textContent = "Loading...";
+
+    let quote = null;
+    let usedSource = null;
+    const order = marketSourceOrder(widget);
+    for (let s = 0; s < order.length && !quote; s++) {
+      const name = order[s];
+      const fetcher = MARKET_SOURCES[name];
+      if (!fetcher) continue;
+      quote = await fetcher(widget.symbol);
+      if (quote) usedSource = name;
+    }
+
+    if (!renderMarketQuote(el, quote, widget.isIndex)) {
+      el.innerHTML = '<span style="color: var(--muted);">N/A</span>';
+    } else if (usedSource === "polygon") {
+      // The free Polygon tier only returns open/close, so this move is measured
+      // from the session open rather than the prior close.
+      el.innerHTML +=
+        ' <span style="color: var(--muted); font-size: 0.68em; white-space: nowrap;" title="Change measured from session open (Polygon free tier)">*</span>';
+    }
+
+    // Alpha Vantage throttles bursts, so pace the remaining requests.
+    if (i < MARKET_WIDGETS.length - 1) await new Promise(r => setTimeout(r, 1200));
   }
 }
 </script>
 </head>
-
 <body>
 
 <button id="refreshBtn" onclick="this.classList.add('refreshing'); setTimeout(() => location.reload(), 800);" title="Refresh page" style="position: fixed; top: 16px; right: 16px; z-index: 1000; background: var(--card-bg-raised); border: 1px solid var(--border); color: var(--text); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.3em; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); transition: all var(--transition), background 0.3s ease, color 0.3s ease, border-color 0.3s ease;">
-  ↻
+  &#8635;
 </button>
 
 <header>
@@ -1404,74 +1296,78 @@ async function loadStockPrices() {
     <img src="profile pic.png" alt="Profile" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid #4a4f57;">
     <div>
       <h1>JDA — Personal Daily Dashboard</h1>
-      <span id="currentDate" style="color: var(--muted); font-size: 0.9em; font-weight: 400;"></span>
+      <div id="currentDate"></div>
     </div>
-  </div>
-  <div style="display:flex; flex-direction:column; align-items:flex-end;">
-    <span id="lastUpdated"></span>
   </div>
 </header>
 
-<div class="container">
+<main>
 
-  <div style="display: flex; gap: 16px; margin-bottom: 20px;">
-    <div id="giantsScore" onclick="window.open('https://www.espn.com/nfl/team/_/name/nyg/new-york-giants', '_blank')" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow); cursor: pointer; transition: box-shadow var(--transition), transform var(--transition); display: flex; flex-direction: column; min-height: 160px;">
+  <h2>Markets</h2>
+  <div class="stock-row">
+    <div class="stock-card">
+      <h3>BAC</h3>
+      <div class="price" id="bacPrice">Loading...</div>
+    </div>
+    <div class="stock-card">
+      <h3>VGT</h3>
+      <div class="price" id="vgtPrice">Loading...</div>
+    </div>
+    <div class="stock-card">
+      <h3>Dow Jones (DJI)</h3>
+      <div class="price" id="djiPrice">Loading...</div>
+    </div>
+  </div>
+
+  <h2>Sports</h2>
+  <div class="score-row">
+    <div class="scorecard" id="giantsScore" onclick="window.open('https://www.espn.com/nfl/team/_/name/nyg/new-york-giants', '_blank')">
+      <div class="scorecard-title">New York Giants</div>
       <p style="color: var(--muted); margin: 0;">Loading Giants score...</p>
     </div>
-    <div id="knicksScore" onclick="window.open('https://www.espn.com/nba/team/_/name/ny/new-york-knicks', '_blank')" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow); cursor: pointer; transition: box-shadow var(--transition), transform var(--transition); display: flex; flex-direction: column; min-height: 160px;">
+    <div class="scorecard" id="knicksScore" onclick="window.open('https://www.espn.com/nba/team/_/name/ny/new-york-knicks', '_blank')">
+      <div class="scorecard-title">New York Knicks</div>
       <p style="color: var(--muted); margin: 0;">Loading Knicks score...</p>
     </div>
-    <div id="oriolesScore" onclick="window.open('https://www.espn.com/mlb/team/_/name/bal/baltimore-orioles', '_blank')" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow); cursor: pointer; transition: box-shadow var(--transition), transform var(--transition); display: flex; flex-direction: column; min-height: 160px;">
-      <p style="color: var(--muted); margin: 0;">Loading Orioles score...</p>
-    </div>
-    <div id="yankeesScore" onclick="window.open('https://www.espn.com/mlb/team/_/name/nyy/new-york-yankees', '_blank')" style="flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; text-align: center; box-shadow: var(--shadow); cursor: pointer; transition: box-shadow var(--transition), transform var(--transition); display: flex; flex-direction: column; min-height: 160px;">
+    <div class="scorecard" id="yankeesScore" onclick="window.open('https://www.espn.com/mlb/team/_/name/nyy/new-york-yankees', '_blank')">
+      <div class="scorecard-title">New York Yankees</div>
       <p style="color: var(--muted); margin: 0;">Loading Yankees score...</p>
     </div>
-  </div>
-
-  <div style="display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
-    <div class="stock-box" style="flex: 1; min-width: 200px; padding: 8px 10px;">
-      <h2 style="margin: 0 0 4px 0; font-size: 0.75em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Bank of America (BAC)</h2>
-      <div id="bacPrice" style="font-size: 0.85em; color: var(--text); min-height: 1.4em;">Loading...</div>
-    </div>
-
-    <div class="stock-box" style="flex: 1; min-width: 200px; padding: 8px 10px;">
-      <h2 style="margin: 0 0 4px 0; font-size: 0.75em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Dow Jones (DJI)</h2>
-      <div id="djiPrice" style="font-size: 0.85em; color: var(--text); min-height: 1.4em;">Loading...</div>
-    </div>
-    <div class="stock-box" style="flex: 1; min-width: 200px; padding: 8px 10px;">
-      <h2 style="margin: 0 0 4px 0; font-size: 0.75em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Vanguard Information Technology (VGT)</h2>
-      <div id="vgtPrice" style="font-size: 0.85em; color: var(--text); min-height: 1.4em;">Loading...</div>
+    <div class="scorecard" id="maristMbbScore" onclick="window.open('https://www.espn.com/mens-college-basketball/team/_/id/2368/marist-red-foxes', '_blank')">
+      <div class="scorecard-title">Marist Men's Basketball</div>
+      <p style="color: var(--muted); margin: 0;">Loading Marist MBB score...</p>
     </div>
   </div>
 
-  <div style="background: var(--card-bg); padding: 18px 20px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-top: 20px; margin-bottom: 12px;">
-    <span style="display: flex; align-items: center; gap: 12px;">
-      <h2 style="margin: 0; font-size: 1.15em; font-weight: 500; color: var(--accent-light);">Wayne, NJ Weather</h2>
-      <img id="currentWeatherIcon" src="" alt="Weather icon" style="width: 48px; height: 48px;">
-    </span>
-    <div id="weatherData" style="margin-top: 12px; font-size: 1.1em; line-height: 1.8; font-weight: 500; color: var(--text);">Loading weather...</div>
+  <h2>Weather</h2>
+  <div class="card">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <img id="currentWeatherIcon" src="https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/day.svg" alt="Current weather" style="width: 56px; height: 56px; flex-shrink: 0;">
+      <div id="weatherData">Loading weather...</div>
+    </div>
+    <div style="color: var(--muted); font-size: 0.85em; margin-top: 12px;" id="lastUpdated"></div>
+
+    <div class="collapsible-header" onclick="toggleForecast()" style="margin: 16px 0 8px 0;">
+      <span id="chevronForecast" class="chevron">&#9660;</span>
+      <span style="display: flex; align-items: center; gap: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3v4M8 3v4M2 13h20"/></svg>
+        7-Day Forecast
+      </span>
+    </div>
+    <div id="forecastContent" class="collapsible-content">
+      <div id="forecast"></div>
+    </div>
   </div>
 
-  <div class="collapsible-header" onclick="toggleForecast()">
-    <span id="chevronForecast" class="chevron">▼</span>
-    <span style="display: flex; align-items: center; gap: 8px;">
-      <h2 style="margin: 0; font-size: 1.15em; font-weight: 500;">7-Day Forecast</h2>
-    </span>
-  </div>
-
-  <div id="forecastContent" class="collapsible-content">
-    <div id="forecast" style="margin-bottom: 16px;"></div>
-  </div>
+  <h2>News</h2>
 
   <div class="collapsible-header" onclick="toggleWorldNews()">
-    <span id="chevronWorld" class="chevron">▼</span>
+    <span id="chevronWorld" class="chevron">&#9660;</span>
     <span style="display: flex; align-items: center; gap: 8px;">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
       World News
     </span>
   </div>
-
   <div id="worldContent" class="collapsible-content">
     <div id="worldContainer" style="display: flex; flex-direction: column; gap: 16px;">
       <p style="color: var(--muted); text-align: center; padding: 20px 0;">Loading world news...</p>
@@ -1479,13 +1375,12 @@ async function loadStockPrices() {
   </div>
 
   <div class="collapsible-header" onclick="toggleUSNews()">
-    <span id="chevronUS" class="chevron">▼</span>
+    <span id="chevronUS" class="chevron">&#9660;</span>
     <span style="display: flex; align-items: center; gap: 8px;">
       <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border: 2px solid var(--accent-light); border-radius: 4px; font-size: 10px; font-weight: 700; color: var(--accent-light);">US</span>
       US News
     </span>
   </div>
-
   <div id="usContent" class="collapsible-content">
     <div id="usContainer" style="display: flex; flex-direction: column; gap: 16px;">
       <p style="color: var(--muted); text-align: center; padding: 20px 0;">Loading US news...</p>
@@ -1493,13 +1388,12 @@ async function loadStockPrices() {
   </div>
 
   <div class="collapsible-header" onclick="toggleTechNews()">
-    <span id="chevronTech" class="chevron">▼</span>
+    <span id="chevronTech" class="chevron">&#9660;</span>
     <span style="display: flex; align-items: center; gap: 8px;">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/></svg>
       Tech News
     </span>
   </div>
-
   <div id="techContent" class="collapsible-content">
     <div id="techContainer" style="display: flex; flex-direction: column; gap: 16px;">
       <p style="color: var(--muted); text-align: center; padding: 20px 0;">Loading tech news...</p>
@@ -1507,13 +1401,12 @@ async function loadStockPrices() {
   </div>
 
   <div class="collapsible-header" onclick="toggleAISection()">
-    <span id="chevron" class="chevron">▼</span>
+    <span id="chevron" class="chevron">&#9660;</span>
     <span style="display: flex; align-items: center; gap: 8px;">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="12" rx="2"/><circle cx="12" cy="14" r="2"/><path d="M12 8V4M8 4h8"/><circle cx="9" cy="13" r="0.5" fill="currentColor"/><circle cx="15" cy="13" r="0.5" fill="currentColor"/></svg>
       AI News
     </span>
   </div>
-
   <div id="aiContent" class="collapsible-content">
     <div id="aiNewsContainer" style="display: flex; flex-direction: column; gap: 16px;">
       <p style="color: var(--muted); text-align: center; padding: 20px 0;">Loading AI news...</p>
@@ -1521,13 +1414,12 @@ async function loadStockPrices() {
   </div>
 
   <div class="collapsible-header" onclick="toggleLocalNews()">
-    <span id="chevronLocal" class="chevron">▼</span>
+    <span id="chevronLocal" class="chevron">&#9660;</span>
     <span style="display: flex; align-items: center; gap: 8px;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      Local News (Wayne, NJ)
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Local News
     </span>
   </div>
-
   <div id="localNewsContent" class="collapsible-content">
     <div id="localNewsContainer" style="display: flex; flex-direction: column; gap: 16px;">
       <p style="color: var(--muted); text-align: center; padding: 20px 0;">Loading local news...</p>
@@ -1535,13 +1427,12 @@ async function loadStockPrices() {
   </div>
 
   <div class="collapsible-header" onclick="toggleSportsNews()">
-    <span id="chevronSports" class="chevron">▼</span>
+    <span id="chevronSports" class="chevron">&#9660;</span>
     <span style="display: flex; align-items: center; gap: 8px;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="6" transform="rotate(-45 12 12)"/><path d="M8 16L16 8M10 14l2 2M12 12l2 2M14 10l2 2"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
       Sports News
     </span>
   </div>
-
   <div id="sportsContent" class="collapsible-content">
     <div id="sportsContainer" style="display: flex; flex-direction: column; gap: 16px;">
       <p style="color: var(--muted); text-align: center; padding: 20px 0;">Loading sports news...</p>
@@ -1549,13 +1440,12 @@ async function loadStockPrices() {
   </div>
 
   <div class="collapsible-header" onclick="toggleMaristNews()">
-    <span id="chevronMarist" class="chevron">▼</span>
+    <span id="chevronMarist" class="chevron">&#9660;</span>
     <span style="display: flex; align-items: center; gap: 8px;">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 9l4 2v11h12V11l4-2L12 2z"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/></svg>
       Marist News
     </span>
   </div>
-
   <div id="maristContent" class="collapsible-content">
     <div id="maristContainer" style="display: flex; flex-direction: column; gap: 16px;">
       <p style="color: var(--muted); text-align: center; padding: 20px 0;">Loading Marist news...</p>
@@ -1563,22 +1453,21 @@ async function loadStockPrices() {
   </div>
 
   <div class="collapsible-header" onclick="toggleRowing()">
-    <span id="chevronRowing" class="chevron">▼</span>
+    <span id="chevronRowing" class="chevron">&#9660;</span>
     <span style="display: flex; align-items: center; gap: 8px;">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 16l4-4 4 4 4-4 4 4 4-4"/><path d="M12 12V4M8 4h8"/></svg>
       Rowing
     </span>
   </div>
-
   <div id="rowingContent" class="collapsible-content">
     <div style="display: flex; flex-direction: column; gap: 12px; padding: 8px 0 8px 24px;">
       <a href="https://www.row2k.com" target="_blank" style="font-size: 1.05em;">Row2k.com</a>
-      <a href="https://log.concept2.com" target="_blank" style="font-size: 1.05em;">Concept2.com</a>
-      <a href="https://www.facebook.com/groups/nereidboatclub" target="_blank" style="font-size: 1.05em;">Nereid Boat Club</a>
+      <a href="https://log.concept2.com" target="_blank" style="font-size: 1.05em;">Concept2 Logbook</a>
+      <a href="https://www.goldinseasons.com" target="_blank" style="font-size: 1.05em;">Goldin Seasoons</a>
     </div>
   </div>
 
-</div>
+</main>
 
 </body>
 </html>
