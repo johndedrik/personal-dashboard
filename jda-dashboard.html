@@ -76,6 +76,12 @@
     margin-top: 4px;
   }
 
+  #lastRefreshed {
+    color: var(--muted);
+    font-size: 0.85em;
+    margin-top: 2px;
+  }
+
   main {
     max-width: 1100px;
     margin: 0 auto;
@@ -325,9 +331,9 @@
   }
 
   @media (max-width: 768px) {
-    /* The refresh/theme buttons and the "Last Refreshed" line are fixed to the
-       top-right, so push the header content below them on narrow screens. */
-    header { padding: 96px 18px 20px; }
+    /* The refresh/theme buttons are fixed to the top-right, so push the header
+       content below them on narrow screens. */
+    header { padding: 76px 18px 20px; }
     h1 { font-size: 1.35em; }
     main { padding: 24px 14px 48px; }
     .stock-row { flex-wrap: wrap; }
@@ -1355,14 +1361,13 @@ async function loadStockPrices() {
   &#8635;
 </button>
 
-<div id="lastRefreshed" style="position: fixed; top: 66px; right: 16px; z-index: 1000; font-size: 0.72em; color: var(--muted); text-align: right; white-space: nowrap; transition: color 0.3s ease;">Last Refreshed: —</div>
-
 <header>
   <div style="display: flex; align-items: center; gap: 16px;">
     <img src="profile pic.png" alt="Profile" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border);">
     <div>
       <h1>JDA Personal Dashboard</h1>
       <div id="currentDate"></div>
+      <div id="lastRefreshed">Last Refreshed: —</div>
     </div>
   </div>
 </header>
