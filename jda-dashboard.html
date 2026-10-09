@@ -622,14 +622,15 @@ const weatherIcons = {
 };
 
 /* FORMAT DATE WITH WEEKDAY */
-function formatDateWithWeekday(dateStr) {
+function formatDateWithWeekday(dateStr, includeYear) {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
   const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const [year, month, day] = dateStr.split("-");
   const dateObj = new Date(year, month - 1, day);
   const weekday = weekdays[dateObj.getDay()];
   const monthName = months[month - 1];
-  return `${weekday}, ${monthName} ${parseInt(day)}, ${year}`;
+  const suffix = includeYear === false ? "" : `, ${year}`;
+  return `${weekday}, ${monthName} ${parseInt(day)}${suffix}`;
 }
 
 // Weather fetch
@@ -665,7 +666,7 @@ async function loadWeather() {
 
       forecastHTML += `
         <div class="forecast-day">
-          <strong>${formatDateWithWeekday(date)}</strong><br>
+          <strong>${formatDateWithWeekday(date, false)}</strong><br>
           <img src="${icon}" alt="${wdesc}">
           ${wdesc}<br>
           High: ${maxF.toFixed(0)}°F<br>
@@ -833,6 +834,19 @@ function renderEspnScorecard(container, cfg) {
         espnLiveDetail(featured) + "</p>"
       : "";
 
+    // The brighter primary styling marks the winner of a finished game; the
+    // loser takes the muted styling. Until there is a winner - a live game, a
+    // tie, or an unknown result - it stays on the tracked team.
+    const primaryName = "font-weight: 600; font-size: 0.98em; text-align: left;";
+    const primaryScore = "font-size: 1.15em; font-weight: 700;";
+    const mutedName = "color: var(--muted); font-size: 0.92em; text-align: left;";
+    const mutedScore = "color: var(--muted); font-size: 0.92em;";
+    const oppWon = !liveGame && label === "L";
+    const meNameStyle = oppWon ? mutedName : primaryName;
+    const meScoreStyle = oppWon ? mutedScore : primaryScore;
+    const oppNameStyle = oppWon ? primaryName : mutedName;
+    const oppScoreStyle = oppWon ? primaryScore : mutedScore;
+
     html += `
       <div>
         <p style="color: ${liveGame ? "#f87171" : "var(--muted)"}; font-size: 0.78em; margin: 0 0 8px 0; letter-spacing: 0.04em;">${headline}</p>
@@ -840,12 +854,12 @@ function renderEspnScorecard(container, cfg) {
           ${badge}
           <div style="flex: 1; min-width: 0;">
             <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 5px;">
-              <span style="font-weight: 600; font-size: 0.98em; text-align: left;">${espnTeamName(split.me, fallbackName)}</span>
-              <span style="font-size: 1.15em; font-weight: 700;">${myScore}</span>
+              <span style="${meNameStyle}">${espnTeamName(split.me, fallbackName)}</span>
+              <span style="${meScoreStyle}">${myScore}</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px;">
-              <span style="color: var(--muted); font-size: 0.92em; text-align: left;">${espnTeamName(split.opponent, "Opponent")}</span>
-              <span style="color: var(--muted); font-size: 0.92em;">${oppScore}</span>
+              <span style="${oppNameStyle}">${espnTeamName(split.opponent, "Opponent")}</span>
+              <span style="${oppScoreStyle}">${oppScore}</span>
             </div>
           </div>
         </div>
