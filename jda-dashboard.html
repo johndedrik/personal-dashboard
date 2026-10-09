@@ -821,28 +821,36 @@ function renderEspnScorecard(container, cfg) {
       ? '<span class="live-dot"></span> LIVE'
       : "LAST GAME &bull; " + espnDateLabel(featured.date, false);
 
-    // A win/loss verdict would be wrong mid-game, so the running score stands
-    // on its own and the period and clock go where the verdict would sit.
-    const verdict = liveGame
+    // The W/L (or tie) badge sits in a narrow column to the left of both team
+    // names rather than on a line of its own. A win/loss verdict would be wrong
+    // mid-game, so a live game keeps its running score and the period and clock
+    // stay below instead.
+    const badge = !liveGame && label
+      ? '<span style="min-width: 1.2em; text-align: center; font-weight: 700; font-size: 1.2em; color: ' +
+        espnResultColor(label) + ';">' + label + "</span>"
+      : "";
+    const liveStatus = liveGame
       ? '<p style="margin: 8px 0 0 0; font-weight: 700; font-size: 1.1em; color: #f87171; white-space: nowrap;">' +
         espnLiveDetail(featured) + "</p>"
-      : (label
-        ? '<p style="margin: 8px 0 0 0; font-weight: 700; font-size: 1.2em; color: ' +
-          espnResultColor(label) + ';">' + label + "</p>"
-        : "");
+      : "";
 
     html += `
       <div>
         <p style="color: ${liveGame ? "#f87171" : "var(--muted)"}; font-size: 0.78em; margin: 0 0 8px 0; letter-spacing: 0.04em;">${headline}</p>
-        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 5px;">
-          <span style="font-weight: 600; font-size: 0.98em; text-align: left;">${espnTeamName(split.me, fallbackName)}</span>
-          <span style="font-size: 1.15em; font-weight: 700;">${myScore}</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          ${badge}
+          <div style="flex: 1; min-width: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 5px;">
+              <span style="font-weight: 600; font-size: 0.98em; text-align: left;">${espnTeamName(split.me, fallbackName)}</span>
+              <span style="font-size: 1.15em; font-weight: 700;">${myScore}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px;">
+              <span style="color: var(--muted); font-size: 0.92em; text-align: left;">${espnTeamName(split.opponent, "Opponent")}</span>
+              <span style="color: var(--muted); font-size: 0.92em;">${oppScore}</span>
+            </div>
+          </div>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px;">
-          <span style="color: var(--muted); font-size: 0.92em; text-align: left;">${espnTeamName(split.opponent, "Opponent")}</span>
-          <span style="color: var(--muted); font-size: 0.92em;">${oppScore}</span>
-        </div>
-        ${verdict}
+        ${liveStatus}
       </div>`;
   } else {
     html += '<div><p style="color: var(--muted); font-size: 0.85em; margin: 0;">No recent games</p></div>';
@@ -1534,7 +1542,7 @@ async function loadStockPrices() {
     <div style="display: flex; flex-direction: column; gap: 12px; padding: 8px 0 8px 24px;">
       <a href="https://www.row2k.com" target="_blank" style="font-size: 1.05em;">Row2k.com</a>
       <a href="https://log.concept2.com" target="_blank" style="font-size: 1.05em;">Concept2 Logbook</a>
-      <a href="https://www.goldinseasons.com" target="_blank" style="font-size: 1.05em;">Goldin Seasoons</a>
+      <a href="https://www.facebook.com/groups/nereidboatclub" target="_blank" style="font-size: 1.05em;">Nereid Boat Club</a>
     </div>
   </div>
 
