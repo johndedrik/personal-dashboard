@@ -182,6 +182,17 @@
     border-bottom: 1px solid var(--border);
   }
 
+  /* Team logo: ESPN's standard art is navy on transparent (visible on light),
+     while the "-dark" art is white/red for dark backgrounds. Show one per theme. */
+  .scorecard-logo { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
+  .scorecard-logo.logo-for-light { display: none; }
+  html[data-theme="light"] .scorecard-logo.logo-for-light { display: inline-block; }
+  html[data-theme="light"] .scorecard-logo.logo-for-dark { display: none; }
+
+  /* The score renderer rewrites its target's innerHTML, so the title (with the
+     logo) sits above this body rather than inside it. */
+  .scorecard-body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
   .collapsible-header {
     background: var(--card-bg);
     border: 1px solid var(--border);
@@ -1477,21 +1488,45 @@ async function loadStockPrices() {
 
   <h2>Sports</h2>
   <div class="score-row">
-    <div class="scorecard" id="giantsScore" onclick="window.open('https://www.espn.com/nfl/team/_/name/nyg/new-york-giants', '_blank')">
-      <div class="scorecard-title">New York Giants</div>
-      <p style="color: var(--muted); margin: 0;">Loading Giants score...</p>
+    <div class="scorecard" onclick="window.open('https://www.espn.com/nfl/team/_/name/nyg/new-york-giants', '_blank')">
+      <div class="scorecard-title" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+        <img class="scorecard-logo logo-for-dark" src="https://a.espncdn.com/i/teamlogos/nfl/500-dark/nyg.png" alt="New York Giants logo">
+        <img class="scorecard-logo logo-for-light" src="https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" alt="New York Giants logo">
+        <span>New York Giants</span>
+      </div>
+      <div class="scorecard-body" id="giantsScore">
+        <p style="color: var(--muted); margin: 0;">Loading Giants score...</p>
+      </div>
     </div>
-    <div class="scorecard" id="knicksScore" onclick="window.open('https://www.espn.com/nba/team/_/name/ny/new-york-knicks', '_blank')">
-      <div class="scorecard-title">New York Knicks</div>
-      <p style="color: var(--muted); margin: 0;">Loading Knicks score...</p>
+    <div class="scorecard" onclick="window.open('https://www.espn.com/nba/team/_/name/ny/new-york-knicks', '_blank')">
+      <div class="scorecard-title" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+        <img class="scorecard-logo logo-for-dark" src="https://a.espncdn.com/i/teamlogos/nba/500-dark/ny.png" alt="New York Knicks logo">
+        <img class="scorecard-logo logo-for-light" src="https://a.espncdn.com/i/teamlogos/nba/500/ny.png" alt="New York Knicks logo">
+        <span>New York Knicks</span>
+      </div>
+      <div class="scorecard-body" id="knicksScore">
+        <p style="color: var(--muted); margin: 0;">Loading Knicks score...</p>
+      </div>
     </div>
-    <div class="scorecard" id="yankeesScore" onclick="window.open('https://www.espn.com/mlb/team/_/name/nyy/new-york-yankees', '_blank')">
-      <div class="scorecard-title">New York Yankees</div>
-      <p style="color: var(--muted); margin: 0;">Loading Yankees score...</p>
+    <div class="scorecard" onclick="window.open('https://www.espn.com/mlb/team/_/name/nyy/new-york-yankees', '_blank')">
+      <div class="scorecard-title" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+        <img class="scorecard-logo logo-for-dark" src="https://a.espncdn.com/i/teamlogos/mlb/500-dark/nyy.png" alt="New York Yankees logo">
+        <img class="scorecard-logo logo-for-light" src="https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" alt="New York Yankees logo">
+        <span>New York Yankees</span>
+      </div>
+      <div class="scorecard-body" id="yankeesScore">
+        <p style="color: var(--muted); margin: 0;">Loading Yankees score...</p>
+      </div>
     </div>
-    <div class="scorecard" id="maristMbbScore" onclick="window.open('https://www.espn.com/mens-college-basketball/team/_/id/2368/marist-red-foxes', '_blank')">
-      <div class="scorecard-title">Marist Men's Basketball</div>
-      <p style="color: var(--muted); margin: 0;">Loading Marist MBB score...</p>
+    <div class="scorecard" onclick="window.open('https://www.espn.com/mens-college-basketball/team/_/id/2368/marist-red-foxes', '_blank')">
+      <div class="scorecard-title" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+        <img class="scorecard-logo logo-for-dark" src="https://a.espncdn.com/i/teamlogos/ncaa/500-dark/2368.png" alt="Marist Red Foxes logo">
+        <img class="scorecard-logo logo-for-light" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2368.png" alt="Marist Red Foxes logo">
+        <span>Marist Basketball</span>
+      </div>
+      <div class="scorecard-body" id="maristMbbScore">
+        <p style="color: var(--muted); margin: 0;">Loading Marist MBB score...</p>
+      </div>
     </div>
   </div>
 
