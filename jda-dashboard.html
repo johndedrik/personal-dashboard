@@ -673,7 +673,6 @@ async function loadWeather() {
         </div>`;
     }
     document.getElementById("forecast").innerHTML = forecastHTML;
-    document.getElementById("lastUpdated").innerText = "Last updated: " + new Date().toLocaleString();
   } catch (e) {
     document.getElementById("weatherData").innerText = "Weather unavailable";
   }
@@ -1424,7 +1423,6 @@ async function loadStockPrices() {
       <img id="currentWeatherIcon" src="https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/day.svg" alt="Current weather" style="width: 56px; height: 56px; flex-shrink: 0;">
       <div id="weatherData">Loading weather...</div>
     </div>
-    <div style="color: var(--muted); font-size: 0.85em; margin-top: 12px;" id="lastUpdated"></div>
 
     <div class="collapsible-header" onclick="toggleForecast()" style="margin: 16px 0 8px 0;">
       <span id="chevronForecast" class="chevron">&#9660;</span>
