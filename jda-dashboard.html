@@ -14,10 +14,26 @@
     --accent-light: #60a5fa;
     --border: #2e323b;
     --muted: #8b8f98;
+    --headline: #a3a8b0;
     --radius: 12px;
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.35);
     --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Light theme: the dark palette in :root stays the default. */
+  html[data-theme="light"] {
+    --bg: #f5f6f8;
+    --card-bg: #ffffff;
+    --card-bg-raised: #eef0f3;
+    --text: #1f2229;
+    --accent: #1a73e8;
+    --accent-light: #1a73e8;
+    --border: #dfe3e8;
+    --muted: #6b7280;
+    --headline: #5b616b;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.14);
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -33,6 +49,7 @@
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color var(--transition), color var(--transition);
   }
 
   ::selection { background: var(--accent); color: #fff; }
@@ -214,7 +231,7 @@
     font-size: 1.15em;
     font-weight: 500;
     margin-bottom: 8px;
-    color: #a3a8b0;
+    color: var(--headline);
     letter-spacing: -0.01em;
   }
 
@@ -344,6 +361,30 @@
   }
 </style>
 <script>
+/* Theme: default dark, remembered across reloads. Runs before the body renders
+   so there is no flash of the wrong theme. */
+(function () {
+  let saved = null;
+  try { saved = localStorage.getItem("theme"); } catch (e) {}
+  document.documentElement.setAttribute("data-theme", saved === "light" ? "light" : "dark");
+})();
+
+function updateThemeButton() {
+  const btn = document.getElementById("themeBtn");
+  if (!btn) return;
+  const isLight = document.documentElement.getAttribute("data-theme") === "light";
+  // Show a sun while light (click to go dark), a moon while dark.
+  btn.innerHTML = isLight ? "&#9728;" : "&#9789;";
+  btn.title = isLight ? "Switch to dark theme" : "Switch to light theme";
+}
+
+function toggleTheme() {
+  const next = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem("theme", next); } catch (e) {}
+  updateThemeButton();
+}
+
 function collapseAll() {
   ["worldContent", "aiContent", "techContent", "usContent", "localNewsContent", "sportsContent", "maristContent", "rowingContent", "forecastContent"].forEach(id => {
     document.getElementById(id).style.maxHeight = null;
@@ -1114,6 +1155,7 @@ function loadMaristNews() { return loadSection("marist"); }
 
 window.onload = function() {
   window.scrollTo(0, 0);
+  updateThemeButton();
   loadWeather();
   loadWorldNews();
   loadAINews();
@@ -1130,6 +1172,8 @@ window.onload = function() {
   document.getElementById("currentDate").innerText = formatDateWithWeekday(
     new Date().toISOString().split("T")[0]
   );
+  document.getElementById("lastRefreshed").innerText =
+    "Last Refreshed: " + new Date().toLocaleString();
 };
 
 // Market data. Alpha Vantage reports a true prior-close change but throttles
@@ -1301,13 +1345,19 @@ async function loadStockPrices() {
 </head>
 <body>
 
+<button id="themeBtn" onclick="toggleTheme()" title="Switch to light theme" style="position: fixed; top: 16px; right: 68px; z-index: 1000; background: var(--card-bg-raised); border: 1px solid var(--border); color: var(--text); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.3em; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); transition: all var(--transition), background 0.3s ease, color 0.3s ease, border-color 0.3s ease;">
+  &#9789;
+</button>
+
 <button id="refreshBtn" onclick="this.classList.add('refreshing'); setTimeout(() => location.reload(), 800);" title="Refresh page" style="position: fixed; top: 16px; right: 16px; z-index: 1000; background: var(--card-bg-raised); border: 1px solid var(--border); color: var(--text); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.3em; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); transition: all var(--transition), background 0.3s ease, color 0.3s ease, border-color 0.3s ease;">
   &#8635;
 </button>
 
+<div id="lastRefreshed" style="position: fixed; top: 66px; right: 16px; z-index: 1000; font-size: 0.72em; color: var(--muted); text-align: right; white-space: nowrap; transition: color 0.3s ease;">Last Refreshed: —</div>
+
 <header>
   <div style="display: flex; align-items: center; gap: 16px;">
-    <img src="profile pic.png" alt="Profile" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid #4a4f57;">
+    <img src="profile pic.png" alt="Profile" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border);">
     <div>
       <h1>JDA — Personal Daily Dashboard</h1>
       <div id="currentDate"></div>
