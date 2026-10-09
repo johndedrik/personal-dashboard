@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDA — Personal Daily Dashboard</title>
+<title>JDA Personal Dashboard</title>
 <style>
   :root {
     --bg: #181a20;
@@ -325,7 +325,9 @@
   }
 
   @media (max-width: 768px) {
-    header { padding: 20px 18px; }
+    /* The refresh/theme buttons and the "Last Refreshed" line are fixed to the
+       top-right, so push the header content below them on narrow screens. */
+    header { padding: 96px 18px 20px; }
     h1 { font-size: 1.35em; }
     main { padding: 24px 14px 48px; }
     .stock-row { flex-wrap: wrap; }
@@ -1359,7 +1361,7 @@ async function loadStockPrices() {
   <div style="display: flex; align-items: center; gap: 16px;">
     <img src="profile pic.png" alt="Profile" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border);">
     <div>
-      <h1>JDA — Personal Daily Dashboard</h1>
+      <h1>JDA Personal Dashboard</h1>
       <div id="currentDate"></div>
     </div>
   </div>
