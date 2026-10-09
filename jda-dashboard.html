@@ -248,6 +248,22 @@
     line-height: 1.5;
   }
 
+  .quote-card { border-left: 3px solid var(--accent); }
+
+  #quoteText {
+    margin: 0;
+    font-size: 1.12em;
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  #quoteAuthor {
+    color: var(--muted);
+    margin-top: 12px;
+    font-size: 0.95em;
+    text-align: right;
+  }
+
   a {
     color: var(--accent-light);
     text-decoration: none;
@@ -677,6 +693,47 @@ async function loadWeather() {
   } catch (e) {
     document.getElementById("weatherData").innerText = "Weather unavailable";
   }
+}
+
+// Quote of the Day. The community Quotable mirror at api.quotable.kurokeita.dev
+// is free, keyless, and CORS-enabled (the original api.quotable.io is offline).
+// One quote is drawn per calendar day and cached, so reloads keep showing the
+// same quote until tomorrow.
+function quoteOfTheDayKey() {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return "quoteOfTheDay:" + d.getFullYear() + "-" + mm + "-" + dd;
+}
+
+function renderQuote(text, author) {
+  document.getElementById("quoteText").textContent = "\u201C" + text + "\u201D";
+  document.getElementById("quoteAuthor").textContent = author ? "\u2014 " + author : "";
+}
+
+function loadQuoteOfTheDay() {
+  const key = quoteOfTheDayKey();
+  let cached = null;
+  try { cached = JSON.parse(localStorage.getItem(key) || "null"); } catch (e) {}
+  if (cached && cached.text) {
+    renderQuote(cached.text, cached.author);
+    return;
+  }
+
+  return fetch("https://api.quotable.kurokeita.dev/api/quotes/random", { cache: "no-store" })
+    .then(res => { if (!res.ok) throw new Error("HTTP " + res.status); return res.json(); })
+    .then(data => {
+      const q = data && data.quote;
+      if (!q || !q.content) throw new Error("no quote");
+      const text = q.content;
+      const author = (q.author && q.author.name) || "Unknown";
+      try { localStorage.setItem(key, JSON.stringify({ text: text, author: author })); } catch (e) {}
+      renderQuote(text, author);
+    })
+    .catch(() => {
+      document.getElementById("quoteText").textContent = "Quote unavailable";
+      document.getElementById("quoteAuthor").textContent = "";
+    });
 }
 
 
@@ -1185,6 +1242,7 @@ function loadMaristNews() { return loadSection("marist"); }
 window.onload = function() {
   window.scrollTo(0, 0);
   updateThemeButton();
+  loadQuoteOfTheDay();
   loadWeather();
   loadWorldNews();
   loadAINews();
@@ -1394,6 +1452,12 @@ async function loadStockPrices() {
 </header>
 
 <main>
+
+  <h2>Quote of the Day</h2>
+  <div class="card quote-card">
+    <blockquote id="quoteText">Loading quote...</blockquote>
+    <div id="quoteAuthor"></div>
+  </div>
 
   <h2>Markets</h2>
   <div class="stock-row">
