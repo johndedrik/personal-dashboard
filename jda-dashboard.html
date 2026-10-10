@@ -477,9 +477,20 @@ function toggleTheme() {
   updateThemeButton();
 }
 
+// Scroll so the given header sits just below the top edge of the viewport. If
+// the document cannot scroll that far (the header is already near the top, or
+// the page bottom limits us), the browser clamps to the closest reachable spot,
+// which puts the header as high on screen as the page allows.
+function scrollHeaderToTop(header) {
+  const topGap = 12;
+  const y = window.pageYOffset || document.documentElement.scrollTop || 0;
+  const target = header.getBoundingClientRect().top + y - topGap;
+  window.scrollTo(0, Math.max(0, target));
+}
+
 // Toggle a single collapsible section in place. Opening a section does not
-// collapse the others and never scrolls the page, so the viewport stays put
-// and only the clicked section's content grows or shrinks.
+// collapse the others. When a section opens, its header is brought to just
+// below the top of the viewport.
 function toggleSection(contentId, chevronId) {
   const content = document.getElementById(contentId);
   const chevron = document.getElementById(chevronId);
@@ -491,6 +502,20 @@ function toggleSection(contentId, chevronId) {
   } else {
     content.style.maxHeight = content.scrollHeight + "px";
     chevron.classList.add("rotate");
+
+    const header = content.previousElementSibling;
+    if (header) {
+      scrollHeaderToTop(header);
+      // The section grows over the max-height transition, so the page may only
+      // become tall enough to reach the target once the transition finishes.
+      // Re-run then (only if the section is still open) to close that gap.
+      const onTransitionEnd = function (e) {
+        if (e.target !== content || e.propertyName !== "max-height") return;
+        content.removeEventListener("transitionend", onTransitionEnd);
+        if (content.style.maxHeight) scrollHeaderToTop(header);
+      };
+      content.addEventListener("transitionend", onTransitionEnd);
+    }
   }
 }
 
@@ -1263,7 +1288,6 @@ function renderMarketQuote(el, quote, isIndex) {
   const sign = up ? "+" : "";
   const color = up ? "#4ade80" : "#f87171";
   const change = isFinite(quote.change) ? quote.change : 0;
-  const pct = isFinite(quote.pct) ? quote.pct : 0;
   // Index values run to five digits, so group the thousands for readability.
   const priceText = (isIndex
     ? quote.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -1274,7 +1298,7 @@ function renderMarketQuote(el, quote, isIndex) {
   el.innerHTML =
     priceText +
     ' <span style="color: ' + color + '; font-size: 0.78em; white-space: nowrap;">' +
-    sign + changeText + " (" + sign + pct.toFixed(2) + "%)</span>";
+    sign + changeText + "</span>";
   return true;
 }
 
