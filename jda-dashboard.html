@@ -13,6 +13,9 @@
     --accent: #1a73e8;
     --accent-light: #60a5fa;
     --border: #2e323b;
+    /* Divider lines are lighter than --border so they stay visible on the dark
+       cards (used for the separator rules inside the scorecards). */
+    --divider: #4e5460;
     --muted: #8b8f98;
     --headline: #a3a8b0;
     --radius: 12px;
@@ -30,6 +33,7 @@
     --accent: #1a73e8;
     --accent-light: #1a73e8;
     --border: #dfe3e8;
+    --divider: var(--border);
     --muted: #6b7280;
     --headline: #5b616b;
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -187,7 +191,7 @@
     color: var(--accent-light);
     margin-bottom: 12px;
     padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--divider);
   }
 
   /* Team logo: ESPN's standard art is navy on transparent (visible on light),
@@ -953,8 +957,9 @@ function renderEspnScorecard(container, cfg) {
     html += '<div class="scorecard-last"><p style="color: var(--muted); font-size: 0.85em; margin: 0;">No recent games</p></div>';
   }
 
-  // Rule separating the most recent game from the upcoming game.
-  html += '<div style="border-top: 1px solid var(--border);"></div>';
+  // Rule separating the most recent game from the upcoming game. --divider is
+  // lighter than --border in the dark theme so the line reads clearly.
+  html += '<div style="border-top: 1px solid var(--divider);"></div>';
 
   if (nextGame) {
     const split = espnSplitCompetitors(nextGame, isMine);
@@ -1271,7 +1276,7 @@ function loadMaristNews() { return loadSection("marist"); }
 
 // Application version: the date/time the file was last saved, as
 // YYYY.MM.DD.HH.MM. Bump this whenever the page is edited and saved.
-const APP_VERSION = "2026.10.10.13.27";
+const APP_VERSION = "2026.10.10.14.35";
 
 window.onload = function() {
   window.scrollTo(0, 0);
