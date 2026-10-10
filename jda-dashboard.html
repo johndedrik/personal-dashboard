@@ -889,10 +889,10 @@ function renderEspnScorecard(container, cfg) {
       ? '<span class="live-dot"></span> LIVE'
       : "LAST GAME &bull; " + espnDateLabel(featured.date, false);
 
-    // The W/L (or tie) badge sits in a narrow column to the left of both team
-    // names rather than on a line of its own. A win/loss verdict would be wrong
-    // mid-game, so a live game keeps its running score and the period and clock
-    // stay below instead.
+    // The W/L (or tie) badge sits on the left side of the card, beside the two
+    // team name rows rather than on a line of its own. A win/loss verdict would
+    // be wrong mid-game, so a live game keeps its running score and the period
+    // and clock stay below instead.
     const badge = !liveGame && label
       ? '<span style="min-width: 1.2em; text-align: center; font-weight: 700; font-size: 1.2em; color: ' +
         espnResultColor(label) + ';">' + label + "</span>"
@@ -918,8 +918,8 @@ function renderEspnScorecard(container, cfg) {
     html += `
       <div>
         <p style="color: ${liveGame ? "#f87171" : "var(--muted)"}; font-size: 0.78em; margin: 0 0 8px 0; letter-spacing: 0.04em;">${headline}</p>
-        <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
-          ${badge}
+        <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px;">
+          <span style="justify-self: start;">${badge}</span>
           <div style="display: flex; flex-direction: column; min-width: 0;">
             <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 5px;">
               <span style="${meNameStyle}">${espnTeamName(split.me, fallbackName)}</span>
@@ -930,6 +930,7 @@ function renderEspnScorecard(container, cfg) {
               <span style="${oppScoreStyle}">${oppScore}</span>
             </div>
           </div>
+          <span aria-hidden="true"></span>
         </div>
         ${liveStatus}
       </div>`;
