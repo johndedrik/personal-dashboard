@@ -228,6 +228,18 @@
     transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  /* Stories revealed inside an expanded News section are indented so they read
+     as belonging to the section header above them. */
+  #worldContent,
+  #usContent,
+  #techContent,
+  #aiContent,
+  #localNewsContent,
+  #sportsContent,
+  #maristContent {
+    padding-left: 50px;
+  }
+
   .story {
     background: var(--card-bg);
     padding: 20px 24px;
@@ -288,6 +300,7 @@
   .icon-links {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 10px;
     margin-bottom: 8px;
   }
@@ -303,6 +316,9 @@
     border: 1px solid var(--border);
     color: var(--text);
     box-shadow: var(--shadow);
+    outline: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
     transition: all var(--transition), background 0.3s ease, color 0.3s ease,
       border-color 0.3s ease;
   }
@@ -310,6 +326,11 @@
   .icon-link:hover {
     border-color: var(--accent-light);
     color: var(--accent-light);
+  }
+
+  .icon-link:focus,
+  .icon-link:active {
+    outline: none;
   }
 
   #weatherData {
@@ -385,9 +406,10 @@
   }
 
   @media (max-width: 768px) {
-    /* The refresh/theme buttons are fixed to the top-right, so push the header
-       content below them on narrow screens. */
-    header { padding: 76px 18px 20px; }
+    /* The theme/refresh buttons now sit inline in the header, so the header can
+       use normal padding. Let it wrap in case the title and buttons cannot share
+       a single row on a narrow screen. */
+    header { padding: 18px; flex-wrap: wrap; gap: 12px; }
     h1 { font-size: 1.35em; }
     main { padding: 24px 14px 48px; }
     .stock-row { flex-wrap: wrap; }
@@ -447,212 +469,49 @@ function toggleTheme() {
   updateThemeButton();
 }
 
-function collapseAll() {
-  ["worldContent", "aiContent", "techContent", "usContent", "localNewsContent", "sportsContent", "maristContent", "rowingContent", "forecastContent"].forEach(id => {
-    document.getElementById(id).style.maxHeight = null;
-  });
-  ["chevronWorld", "chevron", "chevronTech", "chevronUS", "chevronLocal", "chevronSports", "chevronMarist", "chevronRowing", "chevronForecast"].forEach(id => {
-    document.getElementById(id).classList.remove("rotate");
-  });
+// Toggle a single collapsible section in place. Opening a section does not
+// collapse the others and never scrolls the page, so the viewport stays put
+// and only the clicked section's content grows or shrinks.
+function toggleSection(contentId, chevronId) {
+  const content = document.getElementById(contentId);
+  const chevron = document.getElementById(chevronId);
+  if (!content || !chevron) return;
+
+  if (content.style.maxHeight) {
+    content.style.maxHeight = null;
+    chevron.classList.remove("rotate");
+  } else {
+    content.style.maxHeight = content.scrollHeight + "px";
+    chevron.classList.add("rotate");
+  }
 }
 
 // Collapsible Forecast section
-function toggleForecast() {
-  const content = document.getElementById("forecastContent");
-  const chevron = document.getElementById("chevronForecast");
-
-  if (content.style.maxHeight) {
-    content.style.maxHeight = null;
-    chevron.classList.remove("rotate");
-  } else {
-    collapseAll();
-    content.style.maxHeight = content.scrollHeight + "px";
-    chevron.classList.add("rotate");
-    setTimeout(() => {
-      const header = document.querySelector('[onclick="toggleForecast()"]');
-      if (header) {
-        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }
-    }, 300);
-  }
-}
+function toggleForecast() { toggleSection("forecastContent", "chevronForecast"); }
 
 // Collapsible World News section
-function toggleWorldNews() {
-  const content = document.getElementById("worldContent");
-  const chevron = document.getElementById("chevronWorld");
-
-  if (content.style.maxHeight) {
-    content.style.maxHeight = null;
-    chevron.classList.remove("rotate");
-  } else {
-    collapseAll();
-    content.style.maxHeight = content.scrollHeight + "px";
-    chevron.classList.add("rotate");
-    setTimeout(() => {
-      const header = document.querySelector('[onclick="toggleWorldNews()"]');
-      if (header) {
-        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }
-    }, 300);
-  }
-}
+function toggleWorldNews() { toggleSection("worldContent", "chevronWorld"); }
 
 // Collapsible Tech News section
-function toggleTechNews() {
-  const content = document.getElementById("techContent");
-  const chevron = document.getElementById("chevronTech");
-
-  if (content.style.maxHeight) {
-    content.style.maxHeight = null;
-    chevron.classList.remove("rotate");
-  } else {
-    collapseAll();
-    content.style.maxHeight = content.scrollHeight + "px";
-    chevron.classList.add("rotate");
-    setTimeout(() => {
-      const header = document.querySelector('[onclick="toggleTechNews()"]');
-      if (header) {
-        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }
-    }, 300);
-  }
-}
+function toggleTechNews() { toggleSection("techContent", "chevronTech"); }
 
 // Collapsible US News section
-function toggleUSNews() {
-  const content = document.getElementById("usContent");
-  const chevron = document.getElementById("chevronUS");
-
-  if (content.style.maxHeight) {
-    content.style.maxHeight = null;
-    chevron.classList.remove("rotate");
-  } else {
-    collapseAll();
-    content.style.maxHeight = content.scrollHeight + "px";
-    chevron.classList.add("rotate");
-    setTimeout(() => {
-      const header = document.querySelector('[onclick="toggleUSNews()"]');
-      if (header) {
-        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }
-    }, 300);
-  }
-}
+function toggleUSNews() { toggleSection("usContent", "chevronUS"); }
 
 // Collapsible AI section
-function toggleAISection() {
-  const content = document.getElementById("aiContent");
-  const chevron = document.getElementById("chevron");
-
-  if (content.style.maxHeight) {
-    content.style.maxHeight = null;
-    chevron.classList.remove("rotate");
-  } else {
-    collapseAll();
-    content.style.maxHeight = content.scrollHeight + "px";
-    chevron.classList.add("rotate");
-    setTimeout(() => {
-      const header = document.querySelector('[onclick="toggleAISection()"]');
-      if (header) {
-        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }
-    }, 300);
-  }
-}
+function toggleAISection() { toggleSection("aiContent", "chevron"); }
 
 // Collapsible Local News section
-function toggleLocalNews() {
-  const content = document.getElementById("localNewsContent");
-  const chevron = document.getElementById("chevronLocal");
-
-  if (content.style.maxHeight) {
-    content.style.maxHeight = null;
-    chevron.classList.remove("rotate");
-  } else {
-    collapseAll();
-    content.style.maxHeight = content.scrollHeight + "px";
-    chevron.classList.add("rotate");
-    setTimeout(() => {
-      const header = document.querySelector('[onclick="toggleLocalNews()"]');
-      if (header) {
-        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }
-    }, 300);
-  }
-}
+function toggleLocalNews() { toggleSection("localNewsContent", "chevronLocal"); }
 
 // Collapsible Marist News section
-function toggleMaristNews() {
-  const content = document.getElementById("maristContent");
-  const chevron = document.getElementById("chevronMarist");
-
-  if (content.style.maxHeight) {
-    content.style.maxHeight = null;
-    chevron.classList.remove("rotate");
-  } else {
-    collapseAll();
-    content.style.maxHeight = content.scrollHeight + "px";
-    chevron.classList.add("rotate");
-    setTimeout(() => {
-      const header = document.querySelector('[onclick="toggleMaristNews()"]');
-      if (header) {
-        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }
-    }, 300);
-  }
-}
+function toggleMaristNews() { toggleSection("maristContent", "chevronMarist"); }
 
 // Collapsible Rowing section
-function toggleRowing() {
-  const content = document.getElementById("rowingContent");
-  const chevron = document.getElementById("chevronRowing");
-
-  if (content.style.maxHeight) {
-    content.style.maxHeight = null;
-    chevron.classList.remove("rotate");
-  } else {
-    collapseAll();
-    content.style.maxHeight = content.scrollHeight + "px";
-    chevron.classList.add("rotate");
-    setTimeout(() => {
-      const header = document.querySelector('[onclick="toggleRowing()"]');
-      if (header) {
-        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }
-    }, 300);
-  }
-}
+function toggleRowing() { toggleSection("rowingContent", "chevronRowing"); }
 
 // Collapsible Sports News section
-function toggleSportsNews() {
-  const content = document.getElementById("sportsContent");
-  const chevron = document.getElementById("chevronSports");
-
-  if (content.style.maxHeight) {
-    content.style.maxHeight = null;
-    chevron.classList.remove("rotate");
-  } else {
-    collapseAll();
-    content.style.maxHeight = content.scrollHeight + "px";
-    chevron.classList.add("rotate");
-    setTimeout(() => {
-      const header = document.querySelector('[onclick="toggleSportsNews()"]');
-      if (header) {
-        const y = header.getBoundingClientRect().top + window.pageYOffset - 5;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }
-    }, 300);
-  }
-}
+function toggleSportsNews() { toggleSection("sportsContent", "chevronSports"); }
 
 /* WEATHER ICON MAP — Using external SVG URLs */
 const weatherIcons = {
@@ -946,7 +805,7 @@ function renderEspnScorecard(container, cfg) {
       <div>
         <p style="color: ${liveGame ? "#f87171" : "var(--muted)"}; font-size: 0.78em; margin: 0 0 8px 0; letter-spacing: 0.04em;">${headline}</p>
         <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px;">
-          <span style="justify-self: start; padding-left: 25px;">${badge}</span>
+          <span style="justify-self: start; padding-left: 40px;">${badge}</span>
           <div style="display: flex; flex-direction: column; min-width: 0;">
             <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 5px;">
               <span style="${meNameStyle}">${espnTeamName(split.me, fallbackName)}</span>
@@ -1471,14 +1330,6 @@ async function loadStockPrices() {
 </head>
 <body>
 
-<button id="themeBtn" onclick="toggleTheme()" title="Switch to light theme" style="position: fixed; top: 16px; right: 68px; z-index: 1000; background: var(--card-bg-raised); border: 1px solid var(--border); color: var(--text); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.3em; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); transition: all var(--transition), background 0.3s ease, color 0.3s ease, border-color 0.3s ease;">
-  &#9789;
-</button>
-
-<button id="refreshBtn" onclick="this.classList.add('refreshing'); setTimeout(() => location.reload(), 800);" title="Refresh page" style="position: fixed; top: 16px; right: 16px; z-index: 1000; background: var(--card-bg-raised); border: 1px solid var(--border); color: var(--text); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.3em; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); transition: all var(--transition), background 0.3s ease, color 0.3s ease, border-color 0.3s ease;">
-  &#8635;
-</button>
-
 <header>
   <div style="display: flex; align-items: center; gap: 16px;">
     <img src="profile pic.png" alt="Profile" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border);">
@@ -1487,6 +1338,14 @@ async function loadStockPrices() {
       <div id="currentDate"></div>
       <div id="lastRefreshed">Last Refreshed: —</div>
     </div>
+  </div>
+  <div style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
+    <button id="themeBtn" class="icon-link" onclick="toggleTheme()" title="Switch to light theme" style="font-size: 1.3em;">
+      &#9789;
+    </button>
+    <button id="refreshBtn" class="icon-link" onclick="this.classList.add('refreshing'); setTimeout(() => location.reload(), 800);" title="Refresh page" style="font-size: 1.3em;">
+      &#8635;
+    </button>
   </div>
 </header>
 
