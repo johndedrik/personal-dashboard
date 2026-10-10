@@ -438,10 +438,11 @@
   }
 
   @media (max-width: 480px) {
-    .stock-card, .scorecard { flex: 1 1 100%; }
-    /* Single column, so there is room for the largest price yet. The longest
-       value is the DJIA's five digits plus its change, so let it wrap. */
-    .stock-card { font-size: 1.05em; padding: 16px 12px; }
+    .scorecard { flex: 1 1 100%; }
+    /* On phones keep BAC and VGT side by side, with the Dow Jones spanning the
+       full row beneath them (the DJIA's five digits need the extra width). */
+    .stock-card { flex: 1 1 45%; font-size: 1.05em; padding: 16px 12px; }
+    .stock-row .stock-card:last-child { flex: 1 1 100%; }
     .stock-card .price { font-size: 1.45em; }
     .stock-card h3 { font-size: 1em; }
     /* Full-width scorecards get the biggest type. min-height grows with it so
