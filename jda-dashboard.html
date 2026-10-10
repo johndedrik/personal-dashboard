@@ -63,6 +63,14 @@
     align-items: center;
   }
 
+  /* Theme + refresh controls sit above the header, right-aligned. */
+  .top-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 32px 0;
+  }
+
   h1 {
     margin: 0;
     font-size: 1.75em;
@@ -237,7 +245,7 @@
   #localNewsContent,
   #sportsContent,
   #maristContent {
-    padding-left: 50px;
+    padding-left: 35px;
   }
 
   .story {
@@ -406,10 +414,10 @@
   }
 
   @media (max-width: 768px) {
-    /* The theme/refresh buttons now sit inline in the header, so the header can
-       use normal padding. Let it wrap in case the title and buttons cannot share
-       a single row on a narrow screen. */
-    header { padding: 18px; flex-wrap: wrap; gap: 12px; }
+    /* The theme/refresh controls sit above the header now, so the header only
+       holds the profile block and needs no special padding. */
+    .top-buttons { padding: 14px 18px 0; }
+    header { padding: 18px; }
     h1 { font-size: 1.35em; }
     main { padding: 24px 14px 48px; }
     .stock-row { flex-wrap: wrap; }
@@ -546,11 +554,16 @@ function formatDateWithWeekday(dateStr, includeYear) {
   return `${weekday}, ${monthName} ${parseInt(day)}${suffix}`;
 }
 
-// Weather fetch
+// Weather fetch. The coordinates come from the stored zip (default 07470), so
+// changing the zip re-runs this for the new location.
 async function loadWeather() {
   try {
+    const loc = await geocodeZip(getStoredZip());
     const response = await fetch(
-      "https://api.open-meteo.com/v1/forecast?latitude=40.95&longitude=-74.24&current=temperature_2m,weathercode,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=America/New_York"
+      "https://api.open-meteo.com/v1/forecast?latitude=" + loc.latitude +
+      "&longitude=" + loc.longitude +
+      "&current=temperature_2m,weathercode,windspeed_10m" +
+      "&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto"
     );
     const data = await response.json();
     const tempF = (data.current.temperature_2m * 9/5) + 32;
@@ -590,6 +603,76 @@ async function loadWeather() {
   } catch (e) {
     document.getElementById("weatherData").innerText = "Weather unavailable";
   }
+}
+
+// Zip code used by the weather lookup. Stored in localStorage; falls back to a
+// default when the user has not chosen one yet.
+const WEATHER_ZIP_KEY = "weatherZip";
+const DEFAULT_ZIP = "07470";
+
+function getStoredZip() {
+  try { return localStorage.getItem(WEATHER_ZIP_KEY) || DEFAULT_ZIP; } catch (e) { return DEFAULT_ZIP; }
+}
+
+// Resolve a zip to its city/state and coordinates via Zippopotam (free, no key,
+// CORS-enabled). Results are cached per zip and an in-flight lookup is shared so
+// the header label and the weather fetch don't both hit the network.
+const zipLookups = {};
+function geocodeZip(zip) {
+  if (!zipLookups[zip]) {
+    zipLookups[zip] = fetch("https://api.zippopotam.us/us/" + encodeURIComponent(zip))
+      .then(response => {
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        return response.json();
+      })
+      .then(data => {
+        const place = data && data.places && data.places[0];
+        if (!place || !place["place name"]) throw new Error("no place");
+        return {
+          city: place["place name"],
+          state: place["state abbreviation"] || place["state"],
+          latitude: parseFloat(place.latitude),
+          longitude: parseFloat(place.longitude)
+        };
+      });
+    // Don't cache a failed lookup so a later attempt can retry.
+    zipLookups[zip].catch(() => { delete zipLookups[zip]; });
+  }
+  return zipLookups[zip];
+}
+
+// Show the city/state for the stored zip next to the Weather header. The zip
+// itself stays in localStorage; only the display is resolved. Falls back to the
+// raw zip if the lookup fails.
+async function updateZipLabel() {
+  const el = document.getElementById("weatherZipLabel");
+  if (!el) return;
+
+  const zip = getStoredZip();
+  el.textContent = "(" + zip + ")";
+
+  try {
+    const loc = await geocodeZip(zip);
+    // Ignore a stale response if the zip changed while this was in flight.
+    if (zip !== getStoredZip()) return;
+    el.textContent = "(" + loc.city + (loc.state ? ", " + loc.state : "") + ")";
+  } catch (e) {
+    // Keep the zip fallback that is already displayed.
+  }
+}
+
+function promptForZip() {
+  const input = window.prompt("Enter your 5-digit zip code:", getStoredZip());
+  if (input === null) return; // cancelled
+
+  const zip = input.trim();
+  if (!/^\d{5}$/.test(zip)) {
+    if (zip) window.alert("Please enter a valid 5-digit US zip code.");
+    return;
+  }
+  try { localStorage.setItem(WEATHER_ZIP_KEY, zip); } catch (e) {}
+  updateZipLabel();
+  loadWeather();
 }
 
 // Quote of the Day. The community Quotable mirror at api.quotable.kurokeita.dev
@@ -1140,6 +1223,7 @@ function loadMaristNews() { return loadSection("marist"); }
 window.onload = function() {
   window.scrollTo(0, 0);
   updateThemeButton();
+  updateZipLabel();
   loadQuoteOfTheDay();
   loadWeather();
   loadWorldNews();
@@ -1330,6 +1414,15 @@ async function loadStockPrices() {
 </head>
 <body>
 
+<div class="top-buttons">
+  <button id="themeBtn" class="icon-link" onclick="toggleTheme()" title="Switch to light theme" style="font-size: 1.3em;">
+    &#9789;
+  </button>
+  <button id="refreshBtn" class="icon-link" onclick="this.classList.add('refreshing'); setTimeout(() => location.reload(), 800);" title="Refresh page" style="font-size: 1.3em;">
+    &#8635;
+  </button>
+</div>
+
 <header>
   <div style="display: flex; align-items: center; gap: 16px;">
     <img src="profile pic.png" alt="Profile" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border);">
@@ -1338,14 +1431,6 @@ async function loadStockPrices() {
       <div id="currentDate"></div>
       <div id="lastRefreshed">Last Refreshed: —</div>
     </div>
-  </div>
-  <div style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
-    <button id="themeBtn" class="icon-link" onclick="toggleTheme()" title="Switch to light theme" style="font-size: 1.3em;">
-      &#9789;
-    </button>
-    <button id="refreshBtn" class="icon-link" onclick="this.classList.add('refreshing'); setTimeout(() => location.reload(), 800);" title="Refresh page" style="font-size: 1.3em;">
-      &#8635;
-    </button>
   </div>
 </header>
 
@@ -1439,7 +1524,15 @@ async function loadStockPrices() {
     </div>
   </div>
 
-  <h2>Weather</h2>
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 40px 0 18px;">
+    <h2 style="margin: 0;">Weather <span id="weatherZipLabel" style="color: var(--muted); font-size: 0.7em; font-weight: 400;">(07470)</span></h2>
+    <button id="zipBtn" class="icon-link" onclick="promptForZip()" title="Set zip code" aria-label="Set zip code" style="font-size: 1.2em;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
+  </div>
   <div class="card">
     <div style="display: flex; align-items: center; gap: 16px;">
       <img id="currentWeatherIcon" src="https://www.amcharts.com/wp-content/themes/amcharts4/css/img/icons/weather/animated/day.svg" alt="Current weather" style="width: 56px; height: 56px; flex-shrink: 0;">
