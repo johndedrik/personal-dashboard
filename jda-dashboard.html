@@ -306,6 +306,40 @@
     text-align: right;
   }
 
+  .word-card { border-left: 3px solid var(--accent); }
+
+  .word-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  #wordText {
+    font-size: 1.35em;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-transform: capitalize;
+  }
+
+  #wordPos {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 0.9em;
+  }
+
+  #wordDef {
+    margin-top: 10px;
+    line-height: 1.6;
+    font-size: 0.98em;
+  }
+
+  #wordExample {
+    margin-top: 10px;
+    font-style: italic;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
   a {
     color: var(--accent-light);
     text-decoration: none;
@@ -788,6 +822,398 @@ function loadQuoteOfTheDay() {
 
 
 
+
+// Word of the Day. A curated list of interesting words with their definitions
+// is embedded below, so the section needs no network call. One word is drawn
+// per calendar day from the local date, so it advances at local midnight and
+// cycles through the list.
+const WORD_OF_THE_DAY = [
+    {"word":"abjure","pos":"verb","def":"To solemnly reject (someone or something); to abandon (someone or something) forever; to disavow, to disclaim, to repudiate.","ex":"The witness chose to abjure his earlier confession."},
+    {"word":"abnegation","pos":"noun","def":"A denial; a renunciation; denial of desire or self-interest.","ex":"The monk's life of abnegation left him with few possessions."},
+    {"word":"abstruse","pos":"adjective","def":"Difficult to comprehend or understand; obscure.","ex":"The professor's abstruse lecture baffled most of the class."},
+    {"word":"acerbic","pos":"adjective","def":"Sharp, harsh, biting.","ex":"Her acerbic remarks made everyone at the table tense."},
+    {"word":"acquiesce","pos":"verb","def":") To rest satisfied, or apparently satisfied, or to rest without opposition and discontent (usually implying previous opposition or discontent); to accept or consent by silence or by omitting to object.","ex":"Rather than argue, he chose to acquiesce to their demands."},
+    {"word":"acrimonious","pos":"adjective","def":"Angry, acid, and sharp in delivering argumentative replies: bitter, mean-spirited, sharp in language or tone.","ex":"The divorce turned acrimonious after months of disputes."},
+    {"word":"acumen","pos":"noun","def":"Quickness of perception or discernment; penetration of mind; the faculty of nice discrimination; acuity of mind.","ex":"Her business acumen turned a small shop into a thriving chain."},
+    {"word":"adamant","pos":"adjective","def":"Firm; unshakeable; unyielding; determined.","ex":"He was adamant that the deadline would not be moved."},
+    {"word":"admonish","pos":"verb","def":"To advise against wrongdoing; to caution; to warn against danger or an offense.","ex":"The coach admonished the players for arriving late."},
+    {"word":"admonition","pos":"noun","def":"A rebuke by an authority that one has erred and should not persist in one's actions.","ex":"Ignoring her mother's admonition, she drove through the storm."},
+    {"word":"aesthetic","pos":"adjective","def":"Concerned with beauty, artistic effect, or appearance.","ex":"The cafe's warm, minimal aesthetic drew a steady crowd."},
+    {"word":"affable","pos":"adjective","def":"Receiving others kindly and conversing with them in a free and friendly manner; friendly, courteous, sociable.","ex":"Our affable host made sure every guest felt welcome."},
+    {"word":"affluence","pos":"noun","def":"An abundance of wealth.","ex":"The family's sudden affluence changed their quiet neighborhood."},
+    {"word":"aggrandize","pos":"verb","def":"To make great or greater in power, rank, honor, or wealth (applied to persons, countries, etc.).","ex":"He told the story only to aggrandize himself."},
+    {"word":"alacrity","pos":"noun","def":"Eagerness; liveliness; enthusiasm.","ex":"She accepted the invitation with surprising alacrity."},
+    {"word":"alleviate","pos":"verb","def":"To reduce or lessen the severity of a pain or difficulty.","ex":"A warm bath helped alleviate her aching muscles."},
+    {"word":"amalgamate","pos":"verb","def":"To merge, to combine, to blend, to join.","ex":"The two small banks decided to amalgamate into one."},
+    {"word":"ambivalent","pos":"adjective","def":"Simultaneously experiencing or expressing opposing or contradictory feelings, beliefs, motivations, or meanings.","ex":"I feel ambivalent about moving so far from home."},
+    {"word":"ameliorate","pos":"verb","def":"To make better, or improve, something perceived to be in a negative condition.","ex":"New drainage systems ameliorated the flooding problem."},
+    {"word":"amiable","pos":"adjective","def":"Friendly; kind; sweet; gracious","ex":"The amiable clerk chatted with every customer."},
+    {"word":"anachronism","pos":"noun","def":"A person or thing which seems to belong to a different time or period of time. [from 19th c.]","ex":"A payphone in a modern office seems like an anachronism."},
+    {"word":"anathema","pos":"noun","def":"Something which is vehemently disliked by somebody.","ex":"Censorship is anathema to a free press."},
+    {"word":"anomaly","pos":"noun","def":"A deviation from a rule or from what is regarded as normal; an outlier.","ex":"The sudden spike in sales was an anomaly, not a trend."},
+    {"word":"antecedent","pos":"noun","def":"Any thing that precedes another thing, especially the cause of the second thing.","ex":"The court reviewed the antecedents of the disputed law."},
+    {"word":"antipathy","pos":"noun","def":"Often followed by against, between, for, or to: a (deep) feeling of dislike or repugnance, normally towards a person and less often towards a thing, often without any conscious reasoning; aversion, distaste, hostility; (countable) an instance of this.","ex":"Years of rivalry bred a deep antipathy between them."},
+    {"word":"apathetic","pos":"adjective","def":"Void of feeling; not susceptible of deep emotion.","ex":"The students grew apathetic about the endless lectures."},
+    {"word":"aplomb","pos":"noun","def":"Self-confidence; poise; composure.","ex":"She handled the hostile questions with remarkable aplomb."},
+    {"word":"apocryphal","pos":"adjective","def":"Of doubtful authenticity, or lacking authority; not regarded as canonical.","ex":"The tale of his heroic rescue is probably apocryphal."},
+    {"word":"apprise","pos":"verb","def":"To make (someone or oneself) aware of some information; to inform, to notify.","ex":"Please apprise me of any changes to the schedule."},
+    {"word":"approbation","pos":"noun","def":"The act of approving; an assenting to the propriety of a thing with some degree of pleasure or satisfaction; approval, sanction, commendation or official recognition.","ex":"The new policy won the approbation of most employees."},
+    {"word":"arbitrary","pos":"adjective","def":"Based on individual discretion or judgment; not based on any objective distinction, perhaps even made at random.","ex":"The rule felt arbitrary and unfair to the staff."},
+    {"word":"archaic","pos":"adjective","def":"Of or characterized by antiquity; old-fashioned, quaint, antiquated.","ex":"The contract was written in archaic legal language."},
+    {"word":"arduous","pos":"adjective","def":"Needing or using up much energy; testing powers of endurance.","ex":"Climbing the ridge was an arduous three-day trek."},
+    {"word":"artful","pos":"adjective","def":"Characterized by, or performed with, cleverness or contrivance; clever, ingenious.","ex":"Her artful dodging of the question impressed no one."},
+    {"word":"articulate","pos":"verb","def":"To speak clearly; to enunciate.","ex":"He can articulate complex ideas in simple terms."},
+    {"word":"ascetic","pos":"adjective","def":"Characterized by rigorous self-denial or self-discipline; austere; abstinent; involving a withholding of physical pleasure.","ex":"The ascetic hermit owned nothing but a robe and a bowl."},
+    {"word":"aspersion","pos":"noun","def":"An attack on somebody's reputation or good name, often in the phrase to cast aspersions upon….","ex":"He cast aspersions on her motives without any proof."},
+    {"word":"assiduous","pos":"adjective","def":"Hard-working, diligent or regular (in attendance or work); industrious.","ex":"Her assiduous note-taking earned her the top grade."},
+    {"word":"assuage","pos":"verb","def":"To lessen the intensity of, to mitigate or relieve (hunger, emotion, pain, etc.).","ex":"A sincere apology helped assuage his anger."},
+    {"word":"audacious","pos":"adjective","def":"Showing willingness to take bold risks; recklessly daring.","ex":"The audacious plan involved robbing a bank at noon."},
+    {"word":"auspicious","pos":"adjective","def":"Of good omen; indicating future success.","ex":"The sunny morning felt like an auspicious start."},
+    {"word":"austere","pos":"adjective","def":"Grim or severe in manner or appearance.","ex":"The monastery was an austere building with bare walls."},
+    {"word":"avarice","pos":"noun","def":"Excessive or inordinate desire of gain; greed for wealth","ex":"His avarice led him to cheat even his closest friends."},
+    {"word":"banal","pos":"adjective","def":"Common in a boring way, to the point of being predictable; containing nothing new or fresh.","ex":"The film's dialogue was banal and utterly forgettable."},
+    {"word":"bane","pos":"noun","def":"A cause of misery or ruin.","ex":"Traffic is the bane of every commuter's existence."},
+    {"word":"beguile","pos":"verb","def":"To charm, delight or captivate.","ex":"The salesman tried to beguile us with flattery."},
+    {"word":"benevolent","pos":"adjective","def":"Having a disposition to do good.","ex":"A benevolent stranger paid for our meal."},
+    {"word":"benign","pos":"adjective","def":"Kind; gentle; mild.","ex":"The doctor assured us the tumor was benign."},
+    {"word":"bequeath","pos":"verb","def":"To hand down; to transmit.","ex":"She chose to bequeath her library to the town."},
+    {"word":"bereft","pos":"adjective","def":"Pained by the loss of someone.","ex":"Bereft of ideas, the team missed the deadline."},
+    {"word":"blithe","pos":"adjective","def":"Cheerful, happy.","ex":"His blithe disregard for the rules annoyed the referee."},
+    {"word":"bolster","pos":"verb","def":"To brace, reinforce, secure, or support.","ex":"New evidence helped bolster the prosecution's case."},
+    {"word":"bombastic","pos":"adjective","def":"Showy in speech and given to using flowery or elaborate terms; grandiloquent; pompous","ex":"The senator's bombastic speech said little of substance."},
+    {"word":"brazen","pos":"adjective","def":"Shameless or impudent; shocking or audacious; brash.","ex":"The brazen thief walked out with the painting in daylight."},
+    {"word":"brevity","pos":"noun","def":"Succinctness; conciseness.","ex":"The brevity of his reply surprised everyone."},
+    {"word":"brusque","pos":"adjective","def":"Rudely abrupt; curt, unfriendly.","ex":"His brusque manner often offended new clients."},
+    {"word":"bucolic","pos":"adjective","def":"Rustic, pastoral, country-styled.","ex":"They spent the weekend in a bucolic country village."},
+    {"word":"burgeon","pos":"verb","def":"To grow or expand.","ex":"Online sales burgeoned after the holiday ad campaign."},
+    {"word":"cacophony","pos":"noun","def":"A mix of discordant sounds; dissonance.","ex":"A cacophony of horns filled the rush-hour street."},
+    {"word":"cajole","pos":"verb","def":"To persuade someone to do something which they are reluctant to do, especially by flattery or promises; to coax.","ex":"She cajoled her brother into driving her to the airport."},
+    {"word":"callous","pos":"adjective","def":"Emotionally hardened; unfeeling and indifferent to the suffering/feelings of others.","ex":"His callous remark about the accident shocked us."},
+    {"word":"candor","pos":"noun","def":"The state of being sincere and open in speech; honesty in expression.","ex":"I appreciated her candor about the project's flaws."},
+    {"word":"capitulate","pos":"verb","def":"To surrender on stipulated terms, end all resistance, give up, go along with or comply.","ex":"After a long siege, the garrison chose to capitulate."},
+    {"word":"capricious","pos":"adjective","def":"Impulsive and unpredictable; determined by chance, impulse, or whim.","ex":"The capricious weather ruined our picnic plans."},
+    {"word":"castigate","pos":"verb","def":"To punish or reprimand someone severely.","ex":"The editor castigated the reporter for the errors."},
+    {"word":"caustic","pos":"adjective","def":"Capable of burning, corroding or destroying organic tissue.","ex":"His caustic wit spared no one, not even friends."},
+    {"word":"cavalier","pos":"adjective","def":"Lacking the proper care or concern for something important, reckless, rash, high-handed.","ex":"Her cavalier attitude toward deadlines frustrated the team."},
+    {"word":"censure","pos":"noun","def":"The act of blaming, criticizing, or condemning as wrong; reprehension.","ex":"The committee voted to censure the senator for misconduct."},
+    {"word":"chagrin","pos":"noun","def":"Distress of mind caused by a failure of aims or plans, want of appreciation, mistakes etc; vexation or mortification.","ex":"To his chagrin, he forgot his own anniversary."},
+    {"word":"charlatan","pos":"noun","def":"A malicious trickster; a fake person, especially one who deceives for personal profit.","ex":"The so-called doctor was exposed as a charlatan."},
+    {"word":"churlish","pos":"adjective","def":"Rude, surly, ungracious.","ex":"It would be churlish to refuse such a kind offer."},
+    {"word":"circumspect","pos":"adjective","def":"Carefully aware of all circumstances; considerate of all that is pertinent.","ex":"Be circumspect when sharing personal details online."},
+    {"word":"clandestine","pos":"adjective","def":"Done or kept in secret, sometimes to conceal an illicit or improper purpose.","ex":"They held clandestine meetings in a basement cafe."},
+    {"word":"coalesce","pos":"verb","def":"To join into a single mass or whole.","ex":"The scattered protests slowly coalesced into a movement."},
+    {"word":"cogent","pos":"adjective","def":"Reasonable and convincing; based on evidence.","ex":"She made a cogent argument for changing the policy."},
+    {"word":"cognizant","pos":"adjective","def":"Aware; fully informed; having understanding of a fact.","ex":"We are cognizant of the risks involved."},
+    {"word":"colloquial","pos":"adjective","def":"Characteristic of familiar conversation, of common parlance; informal.","ex":"His colloquial writing style felt warm and approachable."},
+    {"word":"commensurate","pos":"adjective","def":"Of a proportionate or similar measurable standard.","ex":"The salary is commensurate with experience."},
+    {"word":"commiserate","pos":"verb","def":"To feel or express compassion or sympathy for (someone or something).","ex":"The teammates commiserated over their narrow loss."},
+    {"word":"compendium","pos":"noun","def":"A short, complete summary; an abstract.","ex":"The book is a compendium of ancient folk remedies."},
+    {"word":"complacent","pos":"adjective","def":"Uncritically satisfied with oneself or one's achievements; smug.","ex":"Success made the company complacent about quality."},
+    {"word":"conciliatory","pos":"adjective","def":"Willing to conciliate, or to make concessions.","ex":"He adopted a conciliatory tone to end the quarrel."},
+    {"word":"condone","pos":"verb","def":"To forgive, excuse or overlook (something that is considered morally wrong, offensive, or generally disliked).","ex":"The school will not condone cheating of any kind."},
+    {"word":"connoisseur","pos":"noun","def":"A specialist in a given field whose opinion is highly valued, especially in one of the fine arts or in matters of taste.","ex":"As a coffee connoisseur, she noticed the burnt beans at once."},
+    {"word":"conscientious","pos":"adjective","def":"Thorough, careful, or vigilant in one’s task performance; painstaking.","ex":"A conscientious editor checks every fact twice."},
+    {"word":"contentious","pos":"adjective","def":"Marked by heated arguments or controversy.","ex":"The most contentious issue was the new tax."},
+    {"word":"contiguous","pos":"adjective","def":"Connected; touching; abutting.","ex":"The two farms occupy contiguous plots of land."},
+    {"word":"contrite","pos":"adjective","def":"Sincerely penitent or feeling regret or sorrow, especially for one’s own actions.","ex":"He seemed genuinely contrite about the mistake."},
+    {"word":"convivial","pos":"adjective","def":"Having elements of a feast or of entertainment, especially when it comes to eating and drinking, with accompanying festivity","ex":"The dinner grew convivial as the evening wore on."},
+    {"word":"copious","pos":"adjective","def":"Vast in quantity or number, profuse, abundant; taking place on a large scale.","ex":"She took copious notes during the seminar."},
+    {"word":"cordial","pos":"adjective","def":"Hearty; sincere; warm; affectionate.","ex":"We received a cordial welcome at the front desk."},
+    {"word":"corroborate","pos":"verb","def":"To confirm or support something with additional evidence; to attest or vouch for.","ex":"Two witnesses corroborated his account of the crash."},
+    {"word":"covet","pos":"verb","def":"To wish for with eagerness; to desire possession of, often enviously.","ex":"He coveted his neighbor's vintage car."},
+    {"word":"craven","pos":"adjective","def":"Unwilling to fight; lacking even the rudiments of courage; extremely cowardly.","ex":"Refusing to help was a craven act."},
+    {"word":"credulous","pos":"adjective","def":"Excessively ready to believe things; gullible.","ex":"The credulous shopper believed every advertisement."},
+    {"word":"cryptic","pos":"adjective","def":"Having hidden (unapparent) meaning.","ex":"His cryptic note left us more confused than before."},
+    {"word":"culminate","pos":"verb","def":"To reach a climax; to come to a decisive point, especially an end or conclusion.","ex":"The festival will culminate in a fireworks display."},
+    {"word":"cursory","pos":"adjective","def":"Hasty or superficial.","ex":"A cursory glance missed the typo on the cover."},
+    {"word":"cynical","pos":"adjective","def":"Skeptical of the integrity, sincerity, or motives of others.","ex":"Years in politics made her cynical about promises."},
+    {"word":"daunt","pos":"verb","def":"To discourage, intimidate.","ex":"The steep climb did not daunt the young hikers."},
+    {"word":"dauntless","pos":"adjective","def":"Invulnerable to fear or intimidation.","ex":"The dauntless firefighter entered the burning building."},
+    {"word":"dearth","pos":"noun","def":"Scarcity; a lack or short supply.","ex":"There is a dearth of affordable housing in the city."},
+    {"word":"debacle","pos":"noun","def":"An event or enterprise that ends suddenly and disastrously, often with humiliating consequences.","ex":"The product launch was a complete debacle."},
+    {"word":"debilitate","pos":"verb","def":"To make feeble; to weaken.","ex":"The long illness debilitated him for months."},
+    {"word":"decorous","pos":"adjective","def":"Marked by behaviour, manners, etc., regarded as proper, tasteful, and in accordance with accepted standards; becoming, seemly.","ex":"The guests maintained a decorous silence during the toast."},
+    {"word":"decorum","pos":"noun","def":"Appropriate social behavior.","ex":"She reminded the committee to observe proper decorum."},
+    {"word":"deference","pos":"noun","def":"Great respect.","ex":"Out of deference to her elders, she stayed quiet."},
+    {"word":"defunct","pos":"adjective","def":"No longer in use or active, nor expected to be again.","ex":"The company's defunct website still shows old prices."},
+    {"word":"deleterious","pos":"adjective","def":"Harmful, often in a subtle or unexpected way.","ex":"Excessive sugar has a deleterious effect on health."},
+    {"word":"delineate","pos":"verb","def":"To describe or depict with words or gestures.","ex":"The map clearly delineates the property lines."},
+    {"word":"demeanor","pos":"noun","def":"The social, non-verbal behaviors (such as body language and facial expressions) that are characteristic of a person.","ex":"His calm demeanor reassured the nervous passengers."},
+    {"word":"demure","pos":"adjective","def":"Modest, quiet, reserved, or serious.","ex":"She gave a demure smile and said nothing."},
+    {"word":"denounce","pos":"verb","def":"To criticize or speak out against (someone or something); to point out as deserving of reprehension, etc.; to openly accuse or condemn in a threatening manner; to invoke censure upon; to stigmatize; to blame.","ex":"The mayor denounced the vandalism as cowardly."},
+    {"word":"deride","pos":"verb","def":"To laugh at or mock (someone or something) harshly; to ridicule, to scorn.","ex":"Critics derided the film as a shallow remake."},
+    {"word":"desultory","pos":"adjective","def":"Jumping, or passing, from one thing or subject to another, without order, planning, or rational connection; lacking logical sequence.","ex":"They made desultory small talk while waiting."},
+    {"word":"didactic","pos":"adjective","def":"Instructive or intended to teach or demonstrate, especially with regard to morality.","ex":"The novel is too didactic to be truly enjoyable."},
+    {"word":"diligent","pos":"adjective","def":"Performing with industrious concentration; hard-working and focused.","ex":"A diligent student reviews her notes every night."},
+    {"word":"discern","pos":"verb","def":"To perceive, recognize, or comprehend with the mind; to descry.","ex":"It was hard to discern the truth from his story."},
+    {"word":"disparage","pos":"verb","def":"To dishonor by a comparison with what is inferior; to lower in rank or estimation by actions or words; to speak slightingly of; to depreciate; to undervalue.","ex":"Do not disparage the work of your colleagues."},
+    {"word":"disparate","pos":"adjective","def":"Composed of inherently different or distinct elements; incongruous.","ex":"The exhibit blends disparate styles into one theme."},
+    {"word":"disseminate","pos":"verb","def":"To become widespread.","ex":"The agency disseminates health warnings by text."},
+    {"word":"dissident","pos":"noun","def":"A person who formally opposes the current political structure, the political group in power, the policies of the political group in power, or current laws.","ex":"The dissident writer was forced into exile."},
+    {"word":"diverge","pos":"verb","def":"To become different; to run apart; to separate; to tend into different directions.","ex":"Our opinions diverge on almost every issue."},
+    {"word":"dogmatic","pos":"adjective","def":"Asserting dogmas or beliefs in a superior or arrogant way; opinionated, dictatorial.","ex":"His dogmatic views left no room for debate."},
+    {"word":"dubious","pos":"adjective","def":"Arousing doubt; questionable; open to suspicion.","ex":"I was dubious about the deal from the start."},
+    {"word":"ebullient","pos":"adjective","def":"Enthusiastic; high-spirited.","ex":"The ebullient crowd cheered the winning goal."},
+    {"word":"eclectic","pos":"adjective","def":"Selecting a mixture of what appears to be best of various doctrines, methods or styles.","ex":"Her taste in music is wonderfully eclectic."},
+    {"word":"effervescent","pos":"adjective","def":"Giving off bubbles; fizzy.","ex":"Her effervescent personality lit up the room."},
+    {"word":"effusive","pos":"adjective","def":"Gushy; unrestrained, extravagant or excessive (in emotional expression).","ex":"He was effusive in his praise of the chefs."},
+    {"word":"egregious","pos":"adjective","def":"Outrageously bad; shocking.","ex":"The referee missed an egregious foul."},
+    {"word":"eloquent","pos":"adjective","def":"Fluently persuasive and articulate.","ex":"Her eloquent speech moved the entire audience."},
+    {"word":"elucidate","pos":"verb","def":"To make (something) clear and understandable; to clarify, to illuminate, to shed light on.","ex":"Could you elucidate what the new policy means?"},
+    {"word":"embellish","pos":"verb","def":"To make more beautiful and attractive by adding ornamentation; to decorate.","ex":"He tends to embellish his travel stories."},
+    {"word":"emulate","pos":"verb","def":"To copy or imitate, especially a person.","ex":"Young players try to emulate their idols."},
+    {"word":"enervate","pos":"verb","def":"To reduce strength or energy; debilitate.","ex":"The stifling heat enervated the whole group."},
+    {"word":"enigmatic","pos":"adjective","def":"Mysterious.","ex":"She gave an enigmatic smile and walked away."},
+    {"word":"ephemeral","pos":"adjective","def":"Lasting for a short period of time.","ex":"Fame can be painfully ephemeral."},
+    {"word":"epitome","pos":"noun","def":"The embodiment or encapsulation of a class of items.","ex":"He is the epitome of patience and kindness."},
+    {"word":"equanimity","pos":"noun","def":"The state of being calm, stable and composed, especially under stress.","ex":"She faced the bad news with remarkable equanimity."},
+    {"word":"equivocal","pos":"adjective","def":"Having two or more equally applicable meanings; capable of double or multiple interpretation.","ex":"His equivocal answer satisfied no one."},
+    {"word":"erratic","pos":"adjective","def":"Unsteady, random; prone to unexpected changes; not consistent.","ex":"The erratic bus schedule makes commuting hard."},
+    {"word":"esoteric","pos":"adjective","def":"Intended for or likely to be understood by only a small number of people with a specialized knowledge or interest, or an enlightened inner circle.","ex":"The paper was filled with esoteric jargon."},
+    {"word":"euphemism","pos":"noun","def":"The use of a word or phrase to replace another one that is more offensive, blunt or vulgar.","ex":"Politics is full of euphemism, like calling layoffs restructuring."},
+    {"word":"exacerbate","pos":"verb","def":"To make worse (a problem, bad situation, negative feeling, etc.).","ex":"Shouting will only exacerbate the argument."},
+    {"word":"exemplary","pos":"adjective","def":"Of such high quality that it should serve as an example to be imitated; ideal, perfect.","ex":"Her exemplary service earned a standing ovation."},
+    {"word":"exorbitant","pos":"adjective","def":"Exceeding proper limits; excessive or unduly high; extravagant.","ex":"They charged an exorbitant fee for a simple repair."},
+    {"word":"expedient","pos":"adjective","def":"Suitable to effect some desired end or the purpose intended.","ex":"It was expedient to postpone the vote until spring."},
+    {"word":"extol","pos":"verb","def":"To praise; to make high.","ex":"The critics extolled the chef's inventive dishes."},
+    {"word":"extraneous","pos":"adjective","def":"Not essential or intrinsic.","ex":"Cut any extraneous details from your report."},
+    {"word":"exuberant","pos":"adjective","def":"Very cheery and peppy; extremely cheerful, energetic and enthusiastic.","ex":"The exuberant puppy knocked over the plant."},
+    {"word":"facetious","pos":"adjective","def":"Treating serious issues with (often deliberately) inappropriate humour; flippant.","ex":"I was being facetious, not serious."},
+    {"word":"fallacious","pos":"adjective","def":"Deceptive or misleading.","ex":"The argument rests on a fallacious assumption."},
+    {"word":"fastidious","pos":"adjective","def":"Excessively particular, demanding, or fussy about details, especially about tidiness and cleanliness.","ex":"He is fastidious about keeping his desk tidy."},
+    {"word":"fathom","pos":"verb","def":"Often followed by out: to deeply understand (someone or something); to get to the bottom of.","ex":"I cannot fathom why she would quit now."},
+    {"word":"feckless","pos":"adjective","def":"Without skill, ineffective, incompetent.","ex":"The feckless manager lost track of every deadline."},
+    {"word":"felicitous","pos":"adjective","def":"Appropriate, apt, fitting.","ex":"Her felicitous phrasing made the toast memorable."},
+    {"word":"fervent","pos":"adjective","def":"Having or showing emotional warmth, fervor, and/or passion.","ex":"He is a fervent supporter of the arts."},
+    {"word":"fickle","pos":"adjective","def":"Quick to change one’s opinion or allegiance; insincere; not loyal or reliable.","ex":"The fickle crowd quickly changed its favorite."},
+    {"word":"flourish","pos":"verb","def":"To thrive or grow well.","ex":"The garden flourished after the rainy spring."},
+    {"word":"foment","pos":"verb","def":"To incite or cause troublesome acts; to encourage; to instigate.","ex":"Rumors fomented unrest in the small town."},
+    {"word":"forbearance","pos":"noun","def":"Patient self-control; restraint and tolerance under provocation.","ex":"Raising toddlers demands endless forbearance."},
+    {"word":"fortitude","pos":"noun","def":"Mental or emotional strength that enables courage in the face of adversity.","ex":"She showed great fortitude during her recovery."},
+    {"word":"frugal","pos":"adjective","def":"Of something which is consumed (such as money, goods, etc.): Careful or wise in expenditure; avoiding waste.","ex":"His frugal habits let him retire early."},
+    {"word":"garrulous","pos":"adjective","def":"Excessively or tiresomely talkative.","ex":"Our garrulous neighbor talked for an hour straight."},
+    {"word":"genial","pos":"adjective","def":"Friendly and cheerful; enlivening.","ex":"The genial host greeted each guest warmly."},
+    {"word":"gregarious","pos":"adjective","def":"Who enjoys being in crowds and socializing.","ex":"He is gregarious and loves big parties."},
+    {"word":"hackneyed","pos":"adjective","def":"Repeated too often.","ex":"The movie relies on hackneyed romantic cliches."},
+    {"word":"halcyon","pos":"adjective","def":"Calm, undisturbed, peaceful, serene.","ex":"They recalled the halcyon days of their youth."},
+    {"word":"harbinger","pos":"noun","def":"A person or thing that foreshadows or foretells the coming of someone or something.","ex":"Swallows are a harbinger of spring."},
+    {"word":"hedonistic","pos":"adjective","def":"Devoted to pleasure","ex":"His hedonistic lifestyle eventually caught up with him."},
+    {"word":"heresy","pos":"noun","def":"A doctrine held by a member of a religion at variance or conflict with established religious beliefs.","ex":"Questioning the doctrine was considered heresy."},
+    {"word":"hiatus","pos":"noun","def":"An interruption, break, pause or absence.","ex":"The band returned after a two-year hiatus."},
+    {"word":"histrionic","pos":"adjective","def":"Excessively dramatic or emotional, especially with the intention to draw attention.","ex":"Her histrionic outburst startled the office."},
+    {"word":"homogeneous","pos":"adjective","def":"Of the same kind; alike, similar.","ex":"The town's population is remarkably homogeneous."},
+    {"word":"hubris","pos":"noun","def":"Excessive arrogance or pride, or presumption, originally (Greek mythology) toward the gods.","ex":"His hubris cost him the election."},
+    {"word":"hyperbole","pos":"noun","def":"Deliberate or unintentional overstatement, particularly extreme overstatement.","ex":"Saying you waited forever is hyperbole."},
+    {"word":"idyllic","pos":"adjective","def":"Extremely happy, peaceful, or picturesque.","ex":"They honeymooned in an idyllic seaside village."},
+    {"word":"ignominious","pos":"adjective","def":"Marked by great disgrace, dishonour, humiliation, or shame; disgraceful, shameful.","ex":"The team suffered an ignominious defeat."},
+    {"word":"illicit","pos":"adjective","def":"Unlawful.","ex":"Police seized a shipment of illicit goods."},
+    {"word":"immutable","pos":"adjective","def":"Unable to be changed without exception.","ex":"The laws of physics are considered immutable."},
+    {"word":"impartial","pos":"adjective","def":"Treating all parties, rivals, or disputants equally; not partial; not biased","ex":"A judge must remain impartial at all times."},
+    {"word":"impetuous","pos":"adjective","def":"Characterized by sudden violence or vehemence.","ex":"His impetuous decision cost him dearly."},
+    {"word":"impetus","pos":"noun","def":"Anything that impels; a stimulating factor.","ex":"The award gave fresh impetus to her research."},
+    {"word":"implacable","pos":"adjective","def":"Not able to be placated or appeased.","ex":"She was an implacable foe of the proposal."},
+    {"word":"implicit","pos":"adjective","def":"Suggested indirectly, without being directly expressed.","ex":"The threat was implicit in his tone."},
+    {"word":"inadvertent","pos":"adjective","def":"Not intentional; not on purpose; not conscious.","ex":"An inadvertent keystroke deleted the file."},
+    {"word":"incessant","pos":"adjective","def":"Without pause or stop; not ending, especially to the point of annoyance.","ex":"The incessant barking kept us awake."},
+    {"word":"incisive","pos":"adjective","def":"Intelligently analytical and concise. (of a person or mental process)","ex":"Her incisive questions exposed the flaw."},
+    {"word":"incongruous","pos":"adjective","def":"Not similar or congruent; not matching or fitting in.","ex":"His tuxedo looked incongruous at the beach party."},
+    {"word":"indigenous","pos":"adjective","def":"Born or originating in, native to a land or region, especially before an intrusion.","ex":"The exhibit honors the region's indigenous peoples."},
+    {"word":"indolent","pos":"adjective","def":"Habitually lazy, procrastinating, or resistant to physical labor.","ex":"The indolent cat slept all afternoon."},
+    {"word":"ineffable","pos":"adjective","def":"Beyond expression in words; unspeakable.","ex":"The view from the summit was ineffable."},
+    {"word":"inevitable","pos":"adjective","def":"Impossible to avoid or prevent.","ex":"Change is inevitable in any growing city."},
+    {"word":"inexorable","pos":"adjective","def":"Impossible to prevent or stop; inevitable.","ex":"The inexorable rise of costs worried residents."},
+    {"word":"ingenious","pos":"adjective","def":"Of a person, displaying genius or brilliance; inventive.","ex":"She devised an ingenious way to reuse the boxes."},
+    {"word":"innate","pos":"adjective","def":"Inborn; existing or having existed since birth.","ex":"He has an innate sense of rhythm."},
+    {"word":"innocuous","pos":"adjective","def":"Harmless; producing no ill effect.","ex":"The comment seemed innocuous but stung."},
+    {"word":"inscrutable","pos":"adjective","def":"Difficult or impossible to comprehend, fathom, or interpret.","ex":"His inscrutable expression revealed nothing."},
+    {"word":"insidious","pos":"adjective","def":"Causing harm in a stealthy, often gradual, manner.","ex":"The disease is insidious because symptoms appear late."},
+    {"word":"insipid","pos":"adjective","def":"Flat; lacking character or definition.","ex":"The soup was warm but insipid."},
+    {"word":"intrepid","pos":"adjective","def":"Fearless; bold; brave.","ex":"The intrepid explorers crossed the ice field."},
+    {"word":"irascible","pos":"adjective","def":"Easily provoked to outbursts of anger; irritable.","ex":"The irascible landlord shouted at everyone."},
+    {"word":"itinerant","pos":"adjective","def":"Habitually travelling from place to place.","ex":"An itinerant musician played in every town."},
+    {"word":"jaded","pos":"adjective","def":"Bored or lacking enthusiasm, typically after having been overexposed to, or having consumed too much of something.","ex":"After years of travel, she felt jaded."},
+    {"word":"jargon","pos":"noun","def":"A technical terminology unique to a particular subject.","ex":"The manual was full of technical jargon."},
+    {"word":"jubilant","pos":"adjective","def":"In a state of elation.","ex":"Jubilant fans flooded the streets after the win."},
+    {"word":"judicious","pos":"adjective","def":"Having, characterized by, or done with good judgment or sound thinking.","ex":"A judicious use of time kept the project on track."},
+    {"word":"juxtapose","pos":"verb","def":"To place side by side, especially for contrast or comparison.","ex":"The exhibit juxtaposes old photos with modern ones."},
+    {"word":"labyrinthine","pos":"adjective","def":"Convoluted, baffling, confusing, perplexing.","ex":"We got lost in the labyrinthine old quarter."},
+    {"word":"laconic","pos":"adjective","def":"Using as few words as possible; pithy and concise.","ex":"His laconic answer was a single word."},
+    {"word":"lambaste","pos":"verb","def":"To scold, reprimand or criticize harshly.","ex":"Critics lambasted the sequel for lazy writing."},
+    {"word":"languid","pos":"adjective","def":"Of a person or animal, or their body functions: flagging from weakness, or inactive or weak, especially due to illness or tiredness; faint, listless.","ex":"We spent a languid afternoon by the pool."},
+    {"word":"latent","pos":"adjective","def":"Existing or present but concealed or inactive.","ex":"The classes revealed her latent talent for design."},
+    {"word":"laudable","pos":"adjective","def":"Worthy of being lauded.","ex":"Her effort to help the refugees is laudable."},
+    {"word":"lavish","pos":"adjective","def":"Expending or bestowing profusely; profuse; prodigal.","ex":"They threw a lavish banquet for the guests."},
+    {"word":"lethargic","pos":"adjective","def":"Sluggish, slow.","ex":"The humid heat made everyone lethargic."},
+    {"word":"levity","pos":"noun","def":"A lightness of manner or speech, frivolity; flippancy; a lack of appropriate seriousness; an inclination to make a joke of serious matters.","ex":"A moment of levity broke the tension."},
+    {"word":"liaison","pos":"noun","def":"Communication between two parties or groups.","ex":"She serves as liaison between the two departments."},
+    {"word":"lithe","pos":"adjective","def":"Capable of being easily bent; flexible.","ex":"The dancer's lithe movements amazed the crowd."},
+    {"word":"lucid","pos":"adjective","def":"Clear; easily understood.","ex":"His lucid explanation cleared up the confusion."},
+    {"word":"magnanimous","pos":"adjective","def":"Noble and generous in spirit.","ex":"She was magnanimous in victory."},
+    {"word":"malaise","pos":"noun","def":"A feeling of general bodily discomfort, fatigue or unpleasantness, often at the onset of illness.","ex":"A general malaise hung over the struggling town."},
+    {"word":"malevolent","pos":"adjective","def":"Having or displaying ill will; wishing harm on others.","ex":"The villain gave a malevolent grin."},
+    {"word":"manifest","pos":"adjective","def":"Evident to the senses, especially to the sight; apparent; distinctly perceived.","ex":"Her anxiety manifested as constant fidgeting."},
+    {"word":"meander","pos":"verb","def":"To wind or turn in a course or passage","ex":"The river meanders through the valley."},
+    {"word":"melancholy","pos":"noun","def":"Great sadness or depression, especially of a thoughtful or introspective nature.","ex":"A quiet melancholy settled over the empty house."},
+    {"word":"meticulous","pos":"adjective","def":"Characterized by very precise, conscientious attention to details.","ex":"He keeps meticulous records of every expense."},
+    {"word":"mitigate","pos":"verb","def":"To reduce, lessen, or decrease and thereby to make less severe or easier to bear.","ex":"Planting trees can mitigate urban heat."},
+    {"word":"mollify","pos":"verb","def":"To appease anger, pacify, gain the good will of.","ex":"A sincere apology mollified the angry customer."},
+    {"word":"monotonous","pos":"adjective","def":"Tedious, repetitious, or lacking in variety.","ex":"The monotonous hum of the machine made me drowsy."},
+    {"word":"mundane","pos":"adjective","def":"Ordinary; not new.","ex":"Most of the job is mundane paperwork."},
+    {"word":"munificent","pos":"adjective","def":"Very liberal in giving or bestowing.","ex":"A munificent donor funded the new library."},
+    {"word":"myriad","pos":"noun","def":"A countless number or multitude (of specified things)","ex":"The city offers a myriad of dining options."},
+    {"word":"nadir","pos":"noun","def":"The lowest point; time of greatest depression.","ex":"After the scandal, his popularity reached its nadir."},
+    {"word":"nascent","pos":"adjective","def":"Emerging; just coming into existence.","ex":"The nascent company had only three employees."},
+    {"word":"nebulous","pos":"adjective","def":"Vague or ill-defined.","ex":"His plans for the summer were still nebulous."},
+    {"word":"nefarious","pos":"adjective","def":"Sinful, villainous, criminal, or wicked, especially when noteworthy or notorious for such characteristics.","ex":"The ringleader devised a nefarious scheme."},
+    {"word":"nonchalant","pos":"adjective","def":"Casually calm and relaxed.","ex":"He tried to look nonchalant about the praise."},
+    {"word":"nuance","pos":"noun","def":"Subtlety or fine detail.","ex":"She missed the nuance in his joke."},
+    {"word":"obfuscate","pos":"verb","def":"To deliberately make more confusing in order to conceal the truth.","ex":"The report seemed designed to obfuscate the facts."},
+    {"word":"obsequious","pos":"adjective","def":"Excessively eager and attentive to please or to obey instructions; fawning, subservient, servile.","ex":"The obsequious waiter hovered constantly."},
+    {"word":"obstinate","pos":"adjective","def":"Stubbornly adhering to an opinion, purpose, or course, usually with implied unreasonableness; persistent.","ex":"The obstinate mule refused to move."},
+    {"word":"opulent","pos":"adjective","def":"Rich, sumptuous and extravagant.","ex":"The opulent ballroom glittered with chandeliers."},
+    {"word":"ostentatious","pos":"adjective","def":"Intended to attract notice.","ex":"His ostentatious watch drew unwanted attention."},
+    {"word":"palpable","pos":"adjective","def":"Obvious or easily perceived; noticeable.","ex":"The excitement in the stadium was palpable."},
+    {"word":"paramount","pos":"adjective","def":"Highest, supreme; also, chief, leading, pre-eminent.","ex":"Safety is paramount on the factory floor."},
+    {"word":"pariah","pos":"noun","def":"Synonym of outcast: A person despised and excluded by their family, community, or society, especially a member of the untouchable castes in Indian society.","ex":"After the betrayal, he became a pariah."},
+    {"word":"paucity","pos":"noun","def":"A smallness in size or amount that is insufficient; meagerness, dearth.","ex":"A paucity of evidence led to the dismissal."},
+    {"word":"penchant","pos":"noun","def":"Taste, liking, or inclination (for).","ex":"She has a penchant for spicy food."},
+    {"word":"penitent","pos":"adjective","def":"Feeling pain or sorrow on account of one's sins or offenses; feeling sincere guilt.","ex":"The penitent thief returned the stolen money."},
+    {"word":"perfunctory","pos":"adjective","def":"Performed in a careless or indifferent manner as a thing of rote.","ex":"He gave a perfunctory nod and left."},
+    {"word":"pernicious","pos":"adjective","def":"Causing much harm in a subtle way.","ex":"The rumor had a pernicious effect on morale."},
+    {"word":"perspicacious","pos":"adjective","def":"Of acute discernment; having keen insight; mentally perceptive.","ex":"Her perspicacious review caught the hidden flaw."},
+    {"word":"pertinent","pos":"adjective","def":"Important with regard to (a subject or matter); pertaining; relevant.","ex":"Please keep your questions pertinent to the topic."},
+    {"word":"petulant","pos":"adjective","def":"Childishly irritable.","ex":"The petulant child slammed the door."},
+    {"word":"philanthropy","pos":"noun","def":"Benevolent altruism with the intention of increasing the well-being of humankind.","ex":"Her philanthropy funded several schools."},
+    {"word":"placid","pos":"adjective","def":"Calm and quiet; peaceful; tranquil","ex":"The lake was placid and mirror-like."},
+    {"word":"plausible","pos":"adjective","def":"Seemingly or apparently valid, likely, or acceptable; conceivably true or likely.","ex":"His excuse sounded plausible enough."},
+    {"word":"plethora","pos":"noun","def":"An excessive amount or number; an abundance.","ex":"There was a plethora of options on the menu."},
+    {"word":"poignant","pos":"adjective","def":"Evoking strong mental sensation, to the point of distress; emotionally moving.","ex":"The photograph was a poignant reminder of home."},
+    {"word":"pragmatic","pos":"adjective","def":"Practical, concerned with making decisions and actions that are useful in practice, not just theory.","ex":"She took a pragmatic approach to the budget."},
+    {"word":"precarious","pos":"adjective","def":"Dangerously insecure or unstable; perilous.","ex":"The ladder rested in a precarious position."},
+    {"word":"premonition","pos":"noun","def":"A strong intuition that something is about to happen (usually something negative, but not exclusively).","ex":"She had a premonition that something was wrong."},
+    {"word":"presumptuous","pos":"adjective","def":"Making unwarranted presumptions or assumptions, often out of arrogance or excessive self-confidence, and thus exceeding appropriate or rightful limits.","ex":"It was presumptuous of him to speak for us."},
+    {"word":"prevaricate","pos":"verb","def":"To speak or act in a manner that is intentionally ambiguous or evasive; equivocate.","ex":"The witness began to prevaricate under pressure."},
+    {"word":"pristine","pos":"adjective","def":"Unspoiled; still with its original purity; uncorrupted or unsullied.","ex":"The beach was pristine and untouched."},
+    {"word":"procrastinate","pos":"verb","def":"To delay taking action; to wait until later.","ex":"Stop procrastinating and start the assignment."},
+    {"word":"prodigious","pos":"adjective","def":"Extraordinarily amazing.","ex":"The athlete showed prodigious strength."},
+    {"word":"profound","pos":"adjective","def":"Very deep; very serious.","ex":"Her words had a profound impact on me."},
+    {"word":"prolific","pos":"adjective","def":"Similarly producing results or performing deeds in abundance.","ex":"He is a prolific writer of short stories."},
+    {"word":"propensity","pos":"noun","def":"An inclination, disposition, tendency, preference, or attraction.","ex":"He has a propensity to overcommit."},
+    {"word":"prosaic","pos":"adjective","def":"Overly plain, simple or commonplace, to the point of being boring.","ex":"The job was prosaic but steady."},
+    {"word":"prudent","pos":"adjective","def":"Practically wise, judicious, shrewd.","ex":"It would be prudent to save for emergencies."},
+    {"word":"pugnacious","pos":"adjective","def":"Naturally aggressive or hostile; combative; belligerent; bellicose.","ex":"The pugnacious debater never backed down."},
+    {"word":"punctilious","pos":"adjective","def":"Strictly attentive to detail; meticulous or fastidious, particularly to codes or conventions.","ex":"He is punctilious about replying to emails."},
+    {"word":"quandary","pos":"noun","def":"A state of not knowing what to decide; a state of difficulty or perplexity; a state of uncertainty, hesitation or puzzlement.","ex":"I was in a quandary over which offer to accept."},
+    {"word":"quintessential","pos":"noun","def":"The fundamental essence of something.","ex":"The diner is the quintessential American restaurant."},
+    {"word":"quixotic","pos":"adjective","def":"Resembling or characteristic of the Spanish chivalric hero Don Quixote; possessed with or resulting from the desire to do noble and romantic deeds, without thought of realism and practicality.","ex":"His quixotic plan to end all traffic was doomed."},
+    {"word":"rancor","pos":"noun","def":"A feeling of long-lasting ire for another, sometimes to the point of hatred, over a perceived wrongdoing; bitterness.","ex":"The debate was full of rancor."},
+    {"word":"rapport","pos":"noun","def":"A relationship of mutual trust and respect; a close and harmonious relationship in which the people or groups concerned understand each other's feelings or ideas and communicate well.","ex":"She quickly built rapport with the students."},
+    {"word":"rebuke","pos":"verb","def":"To criticise harshly; to reprove.","ex":"The coach rebuked the team for their laziness."},
+    {"word":"recalcitrant","pos":"adjective","def":"Marked by a stubborn unwillingness to obey authority.","ex":"The recalcitrant witness refused to answer."},
+    {"word":"reciprocal","pos":"adjective","def":"Of a feeling, action or such: mutual, uniformly felt or done by each party towards the other or others; two-way.","ex":"They have a reciprocal agreement on visas."},
+    {"word":"reclusive","pos":"adjective","def":"Of, characterized by, or preferring privacy and isolation; secluded.","ex":"The reclusive author rarely gives interviews."},
+    {"word":"redundant","pos":"adjective","def":"Superfluous; exceeding what is necessary, no longer needed.","ex":"This paragraph is redundant, so delete it."},
+    {"word":"refute","pos":"verb","def":"To prove (something) to be false or incorrect.","ex":"The data refute his earlier claim."},
+    {"word":"relinquish","pos":"verb","def":"To give up, abandon or retire from something; to trade away.","ex":"He refused to relinquish control of the company."},
+    {"word":"remiss","pos":"adjective","def":"At fault; failing to fulfill responsibility, duty, or obligations.","ex":"I would be remiss if I did not thank you."},
+    {"word":"repertoire","pos":"noun","def":"A list of dramas, operas, pieces, parts, etc., which a company or a person has rehearsed and is prepared to perform or display.","ex":"The pianist added a new piece to her repertoire."},
+    {"word":"reprehensible","pos":"adjective","def":"Blameworthy, censurable, guilty.","ex":"Cheating the elderly is reprehensible."},
+    {"word":"repudiate","pos":"verb","def":"To reject the truth or validity of; to deny.","ex":"The company repudiated the false allegations."},
+    {"word":"resilient","pos":"adjective","def":"Returning quickly to normal after damaging events or conditions. (of systems, organisms or people)","ex":"Children are remarkably resilient."},
+    {"word":"resolute","pos":"adjective","def":"Firm, unyielding, determined.","ex":"She remained resolute despite the setbacks."},
+    {"word":"respite","pos":"noun","def":"A brief interval of rest or relief.","ex":"The rain gave us a brief respite from the heat."},
+    {"word":"reticent","pos":"adjective","def":"Unwilling to communicate; keeping one's thoughts and opinions to oneself; reserved or restrained.","ex":"He was reticent about his past."},
+    {"word":"reverent","pos":"adjective","def":"Showing or characterized by great respect or reverence; respectful.","ex":"The visitors spoke in reverent whispers."},
+    {"word":"ruminate","pos":"verb","def":"To meditate or reflect.","ex":"She ruminated on the offer for days."},
+    {"word":"sagacious","pos":"adjective","def":"Having or showing keen discernment, sound judgment, and farsightedness; mentally shrewd.","ex":"The sagacious advisor foresaw the problem."},
+    {"word":"salubrious","pos":"adjective","def":"Promoting health or well-being; wholesome, especially relating to food or air.","ex":"They moved to a more salubrious climate."},
+    {"word":"sanguine","pos":"adjective","def":"Anticipating the best; optimistic; confident; full of hope.","ex":"He remains sanguine about the project's future."},
+    {"word":"sardonic","pos":"adjective","def":"Scornfully mocking or cynical.","ex":"She gave a sardonic laugh at the suggestion."},
+    {"word":"scrupulous","pos":"adjective","def":"Exactly and carefully conducted.","ex":"He is scrupulous about citing his sources."},
+    {"word":"scrutinize","pos":"verb","def":"To examine something with great care or detail, as to look for hidden or obscure flaws.","ex":"Auditors scrutinized every receipt."},
+    {"word":"sedentary","pos":"adjective","def":"Not moving much; sitting around.","ex":"A sedentary lifestyle can harm your health."},
+    {"word":"serendipity","pos":"noun","def":"An unsought, unintended or unexpected, but fortunate, discovery or learning experience that occurs by accident.","ex":"Meeting my mentor there was pure serendipity."},
+    {"word":"servile","pos":"adjective","def":"Excessively eager to please; obsequious.","ex":"His servile flattery fooled no one."},
+    {"word":"solicitous","pos":"adjective","def":"Showing care, concern, or attention, in any of several ways; thus:","ex":"The nurse was solicitous about the patient's comfort."},
+    {"word":"somber","pos":"adjective","def":"US standard spelling of sombre. [Dark; gloomy; shadowy, dimly lit.]","ex":"The ceremony had a somber tone."},
+    {"word":"soporific","pos":"adjective","def":"Tending to induce sleep.","ex":"The professor's soporific voice put us to sleep."},
+    {"word":"sparse","pos":"adjective","def":"Not dense; meager; scanty","ex":"The desert has sparse vegetation."},
+    {"word":"sporadic","pos":"adjective","def":"Rare and scattered in occurrence.","ex":"Sporadic showers interrupted the game."},
+    {"word":"spurious","pos":"adjective","def":"False, not authentic, not genuine.","ex":"The claim rests on spurious data."},
+    {"word":"squander","pos":"verb","def":"To waste, lavish, splurge; to spend lavishly or profusely; to dissipate.","ex":"Do not squander your savings on things you do not need."},
+    {"word":"steadfast","pos":"adjective","def":"Firmly loyal or constant; unswerving.","ex":"She remained steadfast in her support."},
+    {"word":"stoic","pos":"noun","def":"A person indifferent to pleasure or pain.","ex":"He was stoic about the painful news."},
+    {"word":"strenuous","pos":"adjective","def":"Requiring great exertion; very laborious.","ex":"Moving the piano was strenuous work."},
+    {"word":"stringent","pos":"adjective","def":"Strict; binding strongly; making strict requirements; restrictive; rigid; severe","ex":"The lab follows stringent safety rules."},
+    {"word":"stymie","pos":"verb","def":"To thwart or stump; to cause to fail or to leave hopelessly puzzled, confused, or stuck.","ex":"The broken bridge stymied all traffic."},
+    {"word":"substantiate","pos":"verb","def":"To verify something by supplying evidence; to authenticate or corroborate.","ex":"Can you substantiate that claim with evidence?"},
+    {"word":"succinct","pos":"adjective","def":"Brief and to the point.","ex":"Keep the summary succinct and clear."},
+    {"word":"sumptuous","pos":"adjective","def":"Magnificent, luxurious, splendid.","ex":"The hotel served a sumptuous breakfast."},
+    {"word":"superfluous","pos":"adjective","def":"In excess of what is required or sufficient.","ex":"Cut the superfluous words from the sentence."},
+    {"word":"surreptitious","pos":"adjective","def":"Stealthy, furtive, well hidden, covert (especially movements).","ex":"He cast a surreptitious glance at his phone."},
+    {"word":"sycophant","pos":"noun","def":"One who uses obsequious compliments to gain self-serving favour or advantage from another; a servile flatterer.","ex":"The prince surrounded himself with sycophants."},
+    {"word":"taciturn","pos":"adjective","def":"Silent; temperamentally untalkative; disinclined to speak.","ex":"The taciturn farmer rarely spoke."},
+    {"word":"tangible","pos":"adjective","def":"Touchable; able to be touched or felt; perceptible by the sense of touch.","ex":"The project produced tangible results."},
+    {"word":"tantamount","pos":"adjective","def":"Equivalent in meaning or effect; amounting to the same thing in practical terms, even if being technically distinct.","ex":"Staying silent is tantamount to agreeing."},
+    {"word":"tedious","pos":"adjective","def":"Boring, monotonous, time-consuming, wearisome, livelong.","ex":"Proofreading the long list was tedious."},
+    {"word":"temerity","pos":"noun","def":"Reckless boldness; foolish bravery.","ex":"He had the temerity to question the boss."},
+    {"word":"tenacious","pos":"adjective","def":"Unwilling to yield or give up; dogged.","ex":"The tenacious reporter never dropped the story."},
+    {"word":"tenuous","pos":"adjective","def":"Insubstantial.","ex":"Their connection is tenuous at best."},
+    {"word":"tepid","pos":"adjective","def":"Lukewarm; neither warm nor cool.","ex":"The tea had gone tepid."},
+    {"word":"tirade","pos":"noun","def":"A long, angry or violent speech.","ex":"He launched into a tirade about the traffic."},
+    {"word":"torpor","pos":"noun","def":"A state of being inactive or stuporous.","ex":"Heat-induced torpor made the afternoon drag."},
+    {"word":"tranquil","pos":"adjective","def":"Calm; without motion or sound.","ex":"The garden was tranquil at dawn."},
+    {"word":"transient","pos":"adjective","def":"Remaining for only a brief time.","ex":"The city has a large transient population."},
+    {"word":"trenchant","pos":"adjective","def":"Keen; biting; vigorously articulate and effective; severe.","ex":"Her trenchant critique changed the design."},
+    {"word":"trepidation","pos":"noun","def":"Anxiety over the uncertain future or possible ill-occurrence.","ex":"She approached the stage with trepidation."},
+    {"word":"truculent","pos":"adjective","def":"Eager or quick to argue, fight or start a conflict.","ex":"The truculent fan argued with everyone."},
+    {"word":"ubiquitous","pos":"adjective","def":"Being everywhere at once: omnipresent.","ex":"Smartphones are now ubiquitous."},
+    {"word":"unanimous","pos":"adjective","def":"Sharing the same views or opinions, and being in harmony or accord.","ex":"The vote to approve was unanimous."},
+    {"word":"uncanny","pos":"adjective","def":"Strange, and mysteriously unsettling (as if supernatural); weird.","ex":"He has an uncanny ability to remember names."},
+    {"word":"unequivocal","pos":"adjective","def":"Unambiguous; without equivocation or ambiguity; singularly clear, unmistakable, or unquestionable","ex":"Her support was unequivocal."},
+    {"word":"unprecedented","pos":"adjective","def":"Never before seen, done, or experienced; without precedent.","ex":"The storm caused unprecedented damage."},
+    {"word":"untenable","pos":"adjective","def":"Not able to be held or sustained, such as of an opinion or position.","ex":"The argument became untenable after the new evidence."},
+    {"word":"untoward","pos":"adjective","def":"Unfavourable, adverse, or disadvantageous.","ex":"Nothing untoward happened during the visit."},
+    {"word":"urbane","pos":"adjective","def":"Of a person (usually a man): having refined manners; courteous, polite, suave.","ex":"The urbane diplomat charmed the whole room."},
+    {"word":"usurp","pos":"verb","def":"To seize power from another, usually by illegitimate means.","ex":"The general tried to usurp the throne."},
+    {"word":"vacillate","pos":"verb","def":"To swing indecisively from one course of action or opinion to another.","ex":"He vacillated between the two job offers."},
+    {"word":"vanguard","pos":"noun","def":"The person(s) at the forefront of any group or movement.","ex":"The lab is at the vanguard of AI research."},
+    {"word":"vehement","pos":"adjective","def":"Showing strong feelings; passionate; forceful or intense.","ex":"She gave a vehement denial of the rumors."},
+    {"word":"venerable","pos":"adjective","def":"Commanding respect because of age, dignity, character or position.","ex":"The venerable professor had taught for fifty years."},
+    {"word":"veracity","pos":"noun","def":"The quality of speaking or stating the truth; truthfulness.","ex":"The veracity of the report was questioned."},
+    {"word":"verbose","pos":"adjective","def":"Containing or using more words than necessary; long-winded, wordy. [from 17th c.]","ex":"His verbose email took ten minutes to read."},
+    {"word":"vex","pos":"verb","def":"To annoy, irritate.","ex":"The noisy neighbors vexed her daily."},
+    {"word":"vicarious","pos":"adjective","def":"Experienced or gained by taking in another person’s experience rather than through first-hand experience, such as through watching or reading.","ex":"She felt vicarious pride in her son's medal."},
+    {"word":"vigilant","pos":"adjective","def":"Watchful, especially for danger or disorder; alert; wary","ex":"Stay vigilant for signs of fraud."},
+    {"word":"vindicate","pos":"verb","def":"To clear of an accusation, suspicion or criticism.","ex":"The new evidence vindicated the accused."},
+    {"word":"virulent","pos":"adjective","def":"Of a disease or disease-causing agent: malignant, able to cause damage to the host.","ex":"A virulent flu spread through the school."},
+    {"word":"vivacious","pos":"adjective","def":"Lively and animated; full of life and energy.","ex":"The vivacious host kept the party lively."},
+    {"word":"vociferous","pos":"adjective","def":"Making or characterized by a noisy outcry; clamorous.","ex":"Vociferous protests greeted the new fee."},
+    {"word":"volatile","pos":"adjective","def":"Of a price, variable or erratic.","ex":"The stock market has been volatile this month."},
+    {"word":"voracious","pos":"adjective","def":"Wanting or devouring great quantities of food.","ex":"He is a voracious reader of history."},
+    {"word":"wanton","pos":"adjective","def":"Lewd, immoral; sexually open, unchaste.","ex":"The wanton destruction of the forest angered locals."},
+    {"word":"wary","pos":"adjective","def":"Cautious of danger; carefully watching and guarding against deception, trickery, and dangers; suspiciously prudent","ex":"Be wary of deals that seem too good to be true."},
+    {"word":"whimsical","pos":"adjective","def":"Given to whimsy.","ex":"The shop sells whimsical gifts and trinkets."},
+    {"word":"wistful","pos":"adjective","def":"Full of longing or yearning.","ex":"She gave a wistful look at the old photographs."},
+    {"word":"zealot","pos":"noun","def":"One who is zealous, one who is full of zeal for their own specific beliefs or objectives, usually in the negative sense of being too passionate; a fanatic.","ex":"The zealot would hear no other opinion."},
+    {"word":"zenith","pos":"noun","def":"Highest point or state; peak.","ex":"His career reached its zenith in the nineties."},
+  ];
+
+function wordOfTheDayIndex() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - start) / 86400000);
+  return dayOfYear % WORD_OF_THE_DAY.length;
+}
+
+function loadWordOfTheDay() {
+  const entry = WORD_OF_THE_DAY[wordOfTheDayIndex()];
+  if (!entry) return;
+  document.getElementById("wordText").textContent = entry.word;
+  document.getElementById("wordPos").textContent = entry.pos ? "(" + entry.pos + ")" : "";
+  document.getElementById("wordDef").textContent = entry.def;
+  document.getElementById("wordExample").textContent = entry.ex ? "“" + entry.ex + "”" : "";
+}
 
 history.scrollRestoration = "manual";
 // Identifies the team of interest inside an ESPN event regardless of whether the
@@ -1276,7 +1702,7 @@ function loadMaristNews() { return loadSection("marist"); }
 
 // Application version: the date/time the file was last saved, as
 // YYYY.MM.DD.HH.MM. Bump this whenever the page is edited and saved.
-const APP_VERSION = "2026.10.10.14.35";
+const APP_VERSION = "2026.10.12.17.34";
 
 window.onload = function() {
   window.scrollTo(0, 0);
@@ -1284,6 +1710,7 @@ window.onload = function() {
   updateThemeButton();
   updateZipLabel();
   loadQuoteOfTheDay();
+  loadWordOfTheDay();
   loadWeather();
   loadWorldNews();
   loadAINews();
@@ -1522,6 +1949,16 @@ async function loadStockPrices() {
     <div id="quoteAuthor"></div>
   </div>
 
+  <h2>Word of the Day</h2>
+  <div class="card word-card">
+    <div class="word-title">
+      <span id="wordText">Loading word...</span>
+      <span id="wordPos"></span>
+    </div>
+    <div id="wordDef">Loading definition...</div>
+    <div id="wordExample"></div>
+  </div>
+
   <h2>Markets</h2>
   <div class="stock-row">
     <div class="stock-card">
@@ -1541,7 +1978,7 @@ async function loadStockPrices() {
   <h2>Sports</h2>
   <div class="score-row">
     <div class="scorecard" onclick="window.open('https://www.espn.com/nfl/team/_/name/nyg/new-york-giants', '_blank')">
-      <div class="scorecard-title" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+      <div class="scorecard-title" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px;">
         <img class="scorecard-logo logo-for-dark" src="https://a.espncdn.com/i/teamlogos/nfl/500-dark/nyg.png" alt="New York Giants logo">
         <img class="scorecard-logo logo-for-light" src="https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" alt="New York Giants logo">
         <span>New York Giants</span>
@@ -1551,7 +1988,7 @@ async function loadStockPrices() {
       </div>
     </div>
     <div class="scorecard" onclick="window.open('https://www.espn.com/nba/team/_/name/ny/new-york-knicks', '_blank')">
-      <div class="scorecard-title" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+      <div class="scorecard-title" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px;">
         <img class="scorecard-logo logo-for-dark" src="https://a.espncdn.com/i/teamlogos/nba/500-dark/ny.png" alt="New York Knicks logo">
         <img class="scorecard-logo logo-for-light" src="https://a.espncdn.com/i/teamlogos/nba/500/ny.png" alt="New York Knicks logo">
         <span>New York Knicks</span>
@@ -1561,7 +1998,7 @@ async function loadStockPrices() {
       </div>
     </div>
     <div class="scorecard" onclick="window.open('https://www.espn.com/mlb/team/_/name/nyy/new-york-yankees', '_blank')">
-      <div class="scorecard-title" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+      <div class="scorecard-title" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px;">
         <img class="scorecard-logo logo-for-dark" src="https://a.espncdn.com/i/teamlogos/mlb/500-dark/nyy.png" alt="New York Yankees logo">
         <img class="scorecard-logo logo-for-light" src="https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" alt="New York Yankees logo">
         <span>New York Yankees</span>
@@ -1571,7 +2008,7 @@ async function loadStockPrices() {
       </div>
     </div>
     <div class="scorecard" onclick="window.open('https://www.espn.com/mens-college-basketball/team/_/id/2368/marist-red-foxes', '_blank')">
-      <div class="scorecard-title" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+      <div class="scorecard-title" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px;">
         <img class="scorecard-logo logo-for-dark" src="https://a.espncdn.com/i/teamlogos/ncaa/500-dark/2368.png" alt="Marist Red Foxes logo">
         <img class="scorecard-logo logo-for-light" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2368.png" alt="Marist Red Foxes logo">
         <span>Marist Basketball</span>
