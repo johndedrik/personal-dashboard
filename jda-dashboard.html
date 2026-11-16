@@ -1301,6 +1301,17 @@ function espnTeamName(competitor, fallback) {
   return (t && (t.shortDisplayName || t.displayName || t.name)) || fallback || "Team";
 }
 
+function espnTeamRecord(competitor) {
+  if (!competitor) return "";
+  const records = competitor.records || competitor.record || [];
+  const list = Array.isArray(records) ? records : [records];
+  const pick = list.find(r => r && /^(total|overall|ytd)$/i.test(r.type || r.name || "")) || list[0];
+  if (pick && typeof pick === "object") return pick.summary || pick.displayValue || pick.shortDisplayValue || "";
+  if (typeof pick === "string") return pick;
+  if (typeof competitor.record === "string") return competitor.record;
+  return "";
+}
+
 function espnDateLabel(date, withTime) {
   const opts = { month: "short", day: "numeric" };
   if (withTime) { opts.hour = "numeric"; opts.minute = "2-digit"; }
@@ -1329,6 +1340,7 @@ function renderEspnScorecard(container, cfg) {
     const myScore = espnScoreOf(split.me);
     const oppScore = espnScoreOf(split.opponent);
     const label = espnResultLabel(myScore, oppScore);
+    const myName = espnTeamName(split.me, fallbackName);
 
     const headline = liveGame
       ? '<span class="live-dot"></span> LIVE'
@@ -1367,7 +1379,7 @@ function renderEspnScorecard(container, cfg) {
           <span style="justify-self: start; padding-left: 40px;">${badge}</span>
           <div style="display: flex; flex-direction: column; min-width: 0;">
             <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 5px;">
-              <span style="${meNameStyle}">${espnTeamName(split.me, fallbackName)}</span>
+              <span style="${meNameStyle}">${myName}</span>
               <span style="${meScoreStyle}">${myScore}</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px;">
@@ -1391,11 +1403,12 @@ function renderEspnScorecard(container, cfg) {
     const split = espnSplitCompetitors(nextGame, isMine);
     const oppName = espnTeamName(split.opponent, "Opponent");
     const venue = split.opponent && split.opponent.homeAway === "home" ? "@ " + oppName : "vs " + oppName;
+    const nextName = espnTeamName(split.me, fallbackName);
     html += `
       <div class="scorecard-next" style="text-align: center;">
         <p style="color: var(--muted); font-size: 0.78em; margin: 0 0 8px 0; letter-spacing: 0.04em;">NEXT GAME &bull; ${espnDateLabel(nextGame.date, true)}</p>
         <div style="display: flex; justify-content: center; align-items: baseline; gap: 10px; margin-bottom: 5px;">
-          <span style="font-weight: 600; font-size: 0.98em;">${espnTeamName(split.me, fallbackName)}</span>
+          <span style="font-weight: 600; font-size: 0.98em;">${nextName}</span>
         </div>
         <div style="display: flex; justify-content: center; align-items: baseline; gap: 10px;">
           <span style="color: var(--muted); font-size: 0.92em;">${venue}</span>
@@ -1440,6 +1453,8 @@ function espnSeasonLabels(now, seasonEndsAfterMonth) {
 const ESPN_TEAMS = {
   giants: {
     teamName: "Giants",
+    titleId: "giantsTeamTitle",
+    titleText: "New York Giants",
     path: "football/nfl/teams/19",
     isMine: espnMakeMatcher({ teamId: "19", abbrs: ["NYG"], nameRe: "giants" }),
     // An NFL season is labelled by the year it starts in and runs Sep-Feb.
@@ -1447,6 +1462,8 @@ const ESPN_TEAMS = {
   },
   knicks: {
     teamName: "Knicks",
+    titleId: "knicksTeamTitle",
+    titleText: "New York Knicks",
     path: "basketball/nba/teams/18",
     isMine: espnMakeMatcher({ teamId: "18", abbrs: ["NY", "NYK"], nameRe: "knicks" }),
     // An NBA season is labelled by the year it ends in and runs Oct-Jun.
@@ -1454,6 +1471,8 @@ const ESPN_TEAMS = {
   },
   yankees: {
     teamName: "Yankees",
+    titleId: "yankeesTeamTitle",
+    titleText: "New York Yankees",
     path: "baseball/mlb/teams/10",
     isMine: espnMakeMatcher({ teamId: "10", abbrs: ["NYY"], nameRe: "yankees" }),
     // An MLB season is labelled by the year it starts in and runs Feb-Nov.
@@ -1461,6 +1480,8 @@ const ESPN_TEAMS = {
   },
   marist: {
     teamName: "Marist",
+    titleId: "maristTeamTitle",
+    titleText: "Marist Basketball",
     path: "basketball/mens-college-basketball/teams/2368",
     isMine: espnMakeMatcher({ teamId: "2368", abbrs: ["MRST"], nameRe: "marist" }),
     // A college season is labelled by the year it ends in and runs Nov-Mar.
@@ -1571,6 +1592,20 @@ function espnLoadScorecard(containerId, teamKey) {
         nextGame: result.nextGame,
         liveGame: result.liveGame
       });
+      const sourceGame = result.liveGame || result.lastGame || result.nextGame;
+      const split = sourceGame ? espnSplitCompetitors(sourceGame, cfg.isMine) : null;
+      const record = espnTeamRecord(split && split.me);
+      if (cfg.titleId && cfg.titleText) {
+        const titleEl = document.getElementById(cfg.titleId);
+        if (titleEl) {
+          titleEl.innerHTML = record
+            ? '<span style="display:inline-flex; flex-direction:column; align-items:center; text-align:center; line-height:1.15;">' +
+                '<span>' + cfg.titleText + '</span>' +
+                '<span>' + record + '</span>' +
+              '</span>'
+            : cfg.titleText;
+        }
+      }
     })
     .catch(() => {
       container.innerHTML = '<p style="color: var(--muted); margin: 0;">Unable to load score</p>';
@@ -1942,6 +1977,12 @@ async function loadStockPrices() {
         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
       </svg>
     </a>
+    <a class="icon-link" href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" title="Open Gemini" aria-label="Open Gemini">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3z"></path>
+        <path d="M19 15l.7 1.8 1.8.7-1.8.7L19 20l-.7-1.8-1.8-.7 1.8-.7L19 15z"></path>
+      </svg>
+    </a>
   </div>
   <h2 style="margin-top: 0;">Quote of the Day</h2>
   <div class="card quote-card">
@@ -1981,7 +2022,7 @@ async function loadStockPrices() {
       <div class="scorecard-title" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px;">
         <img class="scorecard-logo logo-for-dark" src="https://a.espncdn.com/i/teamlogos/nfl/500-dark/nyg.png" alt="New York Giants logo">
         <img class="scorecard-logo logo-for-light" src="https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" alt="New York Giants logo">
-        <span>New York Giants</span>
+        <span id="giantsTeamTitle">New York Giants</span>
       </div>
       <div class="scorecard-body" id="giantsScore">
         <p style="color: var(--muted); margin: 0;">Loading Giants score...</p>
@@ -1991,7 +2032,7 @@ async function loadStockPrices() {
       <div class="scorecard-title" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px;">
         <img class="scorecard-logo logo-for-dark" src="https://a.espncdn.com/i/teamlogos/nba/500-dark/ny.png" alt="New York Knicks logo">
         <img class="scorecard-logo logo-for-light" src="https://a.espncdn.com/i/teamlogos/nba/500/ny.png" alt="New York Knicks logo">
-        <span>New York Knicks</span>
+        <span id="knicksTeamTitle">New York Knicks</span>
       </div>
       <div class="scorecard-body" id="knicksScore">
         <p style="color: var(--muted); margin: 0;">Loading Knicks score...</p>
@@ -2001,7 +2042,7 @@ async function loadStockPrices() {
       <div class="scorecard-title" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px;">
         <img class="scorecard-logo logo-for-dark" src="https://a.espncdn.com/i/teamlogos/mlb/500-dark/nyy.png" alt="New York Yankees logo">
         <img class="scorecard-logo logo-for-light" src="https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" alt="New York Yankees logo">
-        <span>New York Yankees</span>
+        <span id="yankeesTeamTitle">New York Yankees</span>
       </div>
       <div class="scorecard-body" id="yankeesScore">
         <p style="color: var(--muted); margin: 0;">Loading Yankees score...</p>
@@ -2011,7 +2052,7 @@ async function loadStockPrices() {
       <div class="scorecard-title" style="display: flex; align-items: center; justify-content: flex-start; gap: 6px;">
         <img class="scorecard-logo logo-for-dark" src="https://a.espncdn.com/i/teamlogos/ncaa/500-dark/2368.png" alt="Marist Red Foxes logo">
         <img class="scorecard-logo logo-for-light" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2368.png" alt="Marist Red Foxes logo">
-        <span>Marist Basketball</span>
+        <span id="maristTeamTitle">Marist Basketball</span>
       </div>
       <div class="scorecard-body" id="maristMbbScore">
         <p style="color: var(--muted); margin: 0;">Loading Marist MBB score...</p>
